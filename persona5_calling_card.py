@@ -8,14 +8,12 @@ MODE = ["light", "dark"]
 PATTERN = ["horizontal", "grid", "vertical", "flat"]
 PATTERN_WEIGHT = [2, 2, 1, 15]
 
-TRANSPARENT = (0, 0, 0, 0)
-
 BASESIZE = {
     "salutation": 72,
     "name": 96,
     "body": 54,
     "signature": 36,
-    "date": 28,
+    "date": 32,
 }
 
 
@@ -29,15 +27,14 @@ class FontManager:
 
 class Pattern:
     def __init__(self, mode, type):
-        if mode == "dark":
-            self.background = (randint(0, 95),)
-            self.middleground = (randint(48, 127),)
-            self.foreground = (randint(224, 255),)
-        else:
-            self.background = (randint(160, 255),)
-            self.middleground = (randint(128, 208),)
-            self.foreground = (randint(0, 32),)
+        self.foreground = randint(0xE0, 0xFF)
+        self.middleground = randint(0x30, 0x7F)
+        self.background = randint(0x00, 0x5F)
         self.type = type
+        if mode == "light":
+            self.foreground ^= 0xFF
+            self.middleground ^= 0xFF
+            self.background ^= 0xFF
 
     def generate(self, width, height):
         image = Image.new("L", (width, height), self.background)
@@ -70,8 +67,7 @@ class Character:
         font_size,
     ):
         if self.character.isspace():
-            space_width = ceil(font_size / 2)
-            space_image = Image.new("RGBA", (space_width, 0), TRANSPARENT)
+            space_image = Image.new("L", (ceil(font_size / 2), 0))
             self.image = space_image
             self.mask = space_image
             return
@@ -91,43 +87,37 @@ class Character:
         image_height = int(height * (1 + 2 * vertical_stretch))
 
         self.image = self.pattern.generate(image_width, image_height)
-        self.mask = Image.new("RGBA", (image_width, image_height), TRANSPARENT)
-        draw = ImageDraw.Draw(self.image)
-        draw_alpha = ImageDraw.Draw(self.mask)
-        dots = [
-            (
-                width * (0 + horizon_stretch) - uniform(0, width * horizon_stretch),
-                height * (0 + vertical_stretch) - uniform(0, height * vertical_stretch),
-            ),
-            (
-                width * (1 + horizon_stretch) + uniform(0, width * horizon_stretch),
-                height * (0 + vertical_stretch) - uniform(0, height * vertical_stretch),
-            ),
-            (
-                width * (1 + horizon_stretch) + uniform(0, width * horizon_stretch),
-                height * (1 + vertical_stretch) + uniform(0, height * vertical_stretch),
-            ),
-            (
-                width * (0 + horizon_stretch) - uniform(0, width * horizon_stretch),
-                height * (1 + vertical_stretch) + uniform(0, height * vertical_stretch),
-            ),
-        ]
-        minx = floor(min(x[0] for x in dots))
-        miny = floor(min(x[1] for x in dots))
-        maxx = ceil(max(x[0] for x in dots))
-        maxy = ceil(max(x[1] for x in dots))
-        crop_coordinate = (minx, miny, maxx, maxy)
-        rotate_degree = normalvariate(sigma=4)
-
-        draw_alpha.polygon(dots, fill=(0, 0, 0))
-        draw.text(
+        draw_image = ImageDraw.Draw(self.image)
+        draw_image.text(
             xy=(width * horizon_stretch, height * vertical_stretch),
             text=self.character,
             fill=self.pattern.foreground,
             font=font,
         )
-        self.image = self.image.crop(crop_coordinate).rotate(rotate_degree, expand=True)
-        self.mask = self.mask.crop(crop_coordinate).rotate(rotate_degree, expand=True)
+
+        self.mask = Image.new("L", (image_width, image_height), 0)
+        draw_mask = ImageDraw.Draw(self.mask)
+
+        corners = np.array(
+            [
+                (0, 0),
+                (0, 1 + vertical_stretch),
+                (1 + horizon_stretch, 1 + vertical_stretch),
+                (1 + horizon_stretch, 0),
+            ]
+        )
+        corners += np.random.uniform(
+            0, [horizon_stretch, vertical_stretch], size=(4, 2)
+        )
+        corners *= np.array([width, height])
+        corners = tuple(tuple(coordinate) for coordinate in corners)
+
+        draw_mask.polygon(corners, fill=0xFF)
+        crop_zone = self.mask.getbbox()
+        degree = normalvariate(sigma=4)
+
+        self.image = self.image.crop(crop_zone).rotate(degree, expand=True)
+        self.mask = self.mask.crop(crop_zone).rotate(degree, expand=True)
 
 
 class Paragraph:
@@ -137,6 +127,7 @@ class Paragraph:
         self.type = type
         self.stretch = stretch
         self.images = []
+        self.masks = []
 
         self.work_images = []
         self.work_masks = []
@@ -149,19 +140,24 @@ class Paragraph:
         width = sum(image.width for image in self.work_images) + spacing * num_image
         posx = 0
 
-        horizon_image = Image.new("RGBA", (width, height), TRANSPARENT)
+        horizon_image = Image.new("L", (width, height), 0)
+        horizon_mask = Image.new("L", (width, height), 0)
 
-        for i, image in enumerate(self.work_images):
+        for image, mask in zip(self.work_images, self.work_masks):
             posy = (height - image.height) // 2 + randint(-spacing, spacing)
-            horizon_image.paste(image, (posx, posy), self.work_masks[i])
+            horizon_image.paste(image, (posx, posy))
+            horizon_mask.paste(mask, (posx, posy))
             posx += image.width + randint(-spacing, spacing)
 
-        x1, y1, x2, y2 = horizon_image.getbbox()
-        horizon_image = horizon_image.crop((x1, y1, x2, y2))
+        crop_zone = horizon_image.getbbox()
+        horizon_image = horizon_image.crop(crop_zone)
+        horizon_mask = horizon_mask.crop(crop_zone)
 
         self.work_images.clear()
         self.work_masks.clear()
+
         self.images.append(horizon_image)
+        self.masks.append(horizon_mask)
 
     def generate(self, content_max_width, spacing):
         self.font_manager = FontManager(r"C:\Users\Frankie\Desktop\mychoice")
@@ -243,7 +239,7 @@ class CallingCard:
         background: CardBackground,
         dic_of_content,
     ):
-        self.set_width = set_width
+        self.image_width = set_width
         self.side_space = side_space
         self.content_max_width = int(set_width * (1 - 2 * side_space))
 
@@ -257,44 +253,33 @@ class CallingCard:
                 spacing=0,
             )
         content_height = sum(para.height for para in self.dic_of_content.values())
-        image_height = ceil(content_height / (1 - 2 * self.side_space))
-        self.background.generate(self.set_width, image_height)
+        self.image_height = ceil(content_height / (1 - 2 * self.side_space))
+        self.background.generate(self.image_width, self.image_height)
 
-        total_image = Image.new(
-            "RGBA", (self.content_max_width, content_height), TRANSPARENT
-        )
+        total_image = Image.new("L", (self.content_max_width, content_height), 0)
+        total_mask = Image.new("L", (self.content_max_width, content_height), 0)
         nowy = 0
         for key in self.dic_of_content:
-            for image in self.dic_of_content[key].images:
+            cnt = len(self.dic_of_content[key].images)
+            for i in range(cnt):
+                image = self.dic_of_content[key].images[i]
+                mask = self.dic_of_content[key].masks[i]
                 if self.dic_of_content[key].align == "L":
                     posx = 0
                 elif self.dic_of_content[key].align == "C":
                     posx = (self.content_max_width - image.width) // 2
                 elif self.dic_of_content[key].align == "R":
                     posx = self.content_max_width - image.width
-                total_image.paste(image, (posx, nowy), image)
+                total_image.paste(image, (posx, nowy))
+                total_mask.paste(mask, (posx, nowy))
                 nowy += image.height
-        x1, y1, x2, y2 = total_image.getbbox()
-        total_image = total_image.crop((x1, y1, x2, y2))
 
         self.image = self.background.image
-        self.image.paste(
-            total_image,
-            (
-                int(self.set_width * self.side_space),
-                int(image_height * self.side_space),
-            ),
-            total_image,
+        left_top = (
+            int(self.image_width * self.side_space),
+            int(self.image_height * self.side_space),
         )
-
-    def get_info(self):
-        return [
-            (self.salutation, 72),
-            (self.name, 96),
-            (self.body, 54),
-            (self.signature, 36),
-            (self.date, 28),
-        ]
+        self.image.paste(total_image, left_top, total_mask)
 
     def save(self):
         self.image.save("card.png")
@@ -304,10 +289,7 @@ def main():
     card = CallingCard(
         set_width=1600,
         side_space=0.05,
-        background=CardBackground(
-            radii=[120, 150],
-            colors=[(255, 0, 0), (0, 0, 0)],
-        ),
+        background=CardBackground(radii=[120, 150], colors=["#F00", "#000"]),
         dic_of_content={
             "salutation": Paragraph(
                 "富含碳水化合物、纤维和钾的", "C", "salutation", [0.2, 0.4]
@@ -316,10 +298,9 @@ def main():
             "body": Paragraph(
                 """你那一点可怜的价值，
 能请到除了猴子以外的员工吗？
-无足轻重的水果，
 我们早已洞悉你内心最隐秘的恐惧，
-你试图用廉价的糖分来掩盖自己的虚弱！
-现在就是时候让你正视自己的可悲本质了。
+你试图用廉价的糖分来掩盖自己的羸弱！
+现在，是时候让你正视自己的可悲本质了。
 我们会在预定时间来偷走你的热量，
 祝你好运。""",
                 "C",
