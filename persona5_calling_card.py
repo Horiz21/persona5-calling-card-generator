@@ -1,12 +1,14 @@
 import os
+from typing import Union
 import numpy as np
-from math import ceil, floor, sqrt
-from PIL import Image, ImageDraw, ImageFont
+from math import ceil, sqrt
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 from random import randint, uniform, choices, random, normalvariate
 
 MODE = ["light", "dark"]
-PATTERN = ["horizontal", "grid", "vertical", "flat"]
-PATTERN_WEIGHT = [2, 2, 1, 15]
+MODE_WEIGHT = [1, 1]
+PATTERN = ["flat", "horizontal", "vertical", "grid"]
+PATTERN_WEIGHT = [15, 2, 2, 1]
 
 BASESIZE = {
     "salutation": 72,
@@ -27,14 +29,11 @@ class FontManager:
 
 class Pattern:
     def __init__(self, mode, type):
-        self.foreground = randint(0xE0, 0xFF)
-        self.middleground = randint(0x30, 0x7F)
-        self.background = randint(0x00, 0x5F)
+        right = 0x00 if mode == "light" else 0xFF
+        self.foreground = randint(0xE0, 0xFF) ^ right
+        self.middleground = randint(0x30, 0x7F) ^ right
+        self.background = randint(0x00, 0x5F) ^ right
         self.type = type
-        if mode == "light":
-            self.foreground ^= 0xFF
-            self.middleground ^= 0xFF
-            self.background ^= 0xFF
 
     def generate(self, width, height):
         image = Image.new("L", (width, height), self.background)
@@ -126,6 +125,7 @@ class Paragraph:
         self.align = align
         self.type = type
         self.stretch = stretch
+
         self.images = []
         self.masks = []
 
@@ -159,8 +159,8 @@ class Paragraph:
         self.images.append(horizon_image)
         self.masks.append(horizon_mask)
 
-    def generate(self, content_max_width, spacing):
-        self.font_manager = FontManager(r"C:\Users\Frankie\Desktop\mychoice")
+    def generate(self, content_max_width, spacing, fonts_path):
+        self.font_manager = FontManager(fonts_path)
 
         now_width = 0
         i = 0
@@ -175,7 +175,7 @@ class Paragraph:
             character = Character(
                 self.text[i],
                 pattern=Pattern(
-                    mode=choices(MODE)[0],
+                    mode=choices(MODE, weights=MODE_WEIGHT)[0],
                     type=choices(PATTERN, weights=PATTERN_WEIGHT)[0],
                 ),
                 stretch=self.stretch,
@@ -200,7 +200,7 @@ class Paragraph:
 
 
 class CardBackground:
-    def __init__(self, radii, colors):
+    def __init__(self, radii: list[float], colors: list[str]):
         self.radii = radii
         self.colors = colors
 
@@ -237,65 +237,82 @@ class CallingCard:
         set_width: int,
         side_space: float,
         background: CardBackground,
-        dic_of_content,
+        contents: list[Paragraph],
+        smooth: bool = False,
     ):
         self.image_width = set_width
         self.side_space = side_space
         self.content_max_width = int(set_width * (1 - 2 * side_space))
 
         self.background = background
-        self.dic_of_content = dic_of_content
+        self.contents = contents
 
-    def generate(self):
-        for key in self.dic_of_content:
-            self.dic_of_content[key].generate(
+        self.blur_radius = 1 if smooth else 0
+
+    def generate(self, fonts_path: str):
+        for content in self.contents:
+            content.generate(
                 content_max_width=self.content_max_width,
                 spacing=0,
+                fonts_path=fonts_path,
             )
-        content_height = sum(para.height for para in self.dic_of_content.values())
+        content_height = sum(para.height for para in self.contents)
         self.image_height = ceil(content_height / (1 - 2 * self.side_space))
         self.background.generate(self.image_width, self.image_height)
 
         total_image = Image.new("L", (self.content_max_width, content_height), 0)
         total_mask = Image.new("L", (self.content_max_width, content_height), 0)
         nowy = 0
-        for key in self.dic_of_content:
-            cnt = len(self.dic_of_content[key].images)
+        for content in self.contents:
+            cnt = len(content.images)
             for i in range(cnt):
-                image = self.dic_of_content[key].images[i]
-                mask = self.dic_of_content[key].masks[i]
-                if self.dic_of_content[key].align == "L":
+                image = content.images[i]
+                mask = content.masks[i]
+                if content.align == "L":
                     posx = 0
-                elif self.dic_of_content[key].align == "C":
+                elif content.align == "C":
                     posx = (self.content_max_width - image.width) // 2
-                elif self.dic_of_content[key].align == "R":
+                elif content.align == "R":
                     posx = self.content_max_width - image.width
                 total_image.paste(image, (posx, nowy))
                 total_mask.paste(mask, (posx, nowy))
                 nowy += image.height
 
-        self.image = self.background.image
+        self.image = self.background.image.filter(
+            ImageFilter.GaussianBlur(self.blur_radius)
+        )
         left_top = (
             int(self.image_width * self.side_space),
             int(self.image_height * self.side_space),
         )
-        self.image.paste(total_image, left_top, total_mask)
+        self.image.paste(
+            total_image,
+            left_top,
+            total_mask.filter(ImageFilter.GaussianBlur(self.blur_radius)),
+        )
 
-    def save(self):
-        self.image.save("card.png")
+    def save(self, path, name):
+        self.image.save(os.path.join(path, name))
 
 
 def main():
+    fonts_path = os.path.join(
+        os.path.expanduser("~"),
+        "AppData/Local/Microsoft/Windows/Fonts",
+    )
+    # fonts_path = os.path.join(os.path.dirname(__file__), "fonts")
+
     card = CallingCard(
-        set_width=1600,
+        set_width=1920,
         side_space=0.05,
-        background=CardBackground(radii=[120, 150], colors=["#F00", "#000"]),
-        dic_of_content={
-            "salutation": Paragraph(
-                "富含碳水化合物、纤维和钾的", "C", "salutation", [0.2, 0.4]
-            ),
-            "name": Paragraph("Musa nana Lour.", "C", "name", [0.2, 0.5]),
-            "body": Paragraph(
+        background=CardBackground(
+            radii=[120, 150],
+            colors=["#F00", "#000"],
+        ),
+        contents=[
+            Paragraph("富含碳水化合物、纤维和钾的", "C", "salutation", [0.2, 0.4]),
+            Paragraph("Musa nana Lour.", "C", "name", [0.2, 0.5]),
+            Paragraph(
                 """你那一点可怜的价值，
 能请到除了猴子以外的员工吗？
 我们早已洞悉你内心最隐秘的恐惧，
@@ -307,12 +324,13 @@ def main():
                 "body",
                 [0.2, 0.2],
             ),
-            "signature": Paragraph("心灵怪盗团", "R", "signature", [0.2, 0.2]),
-            "date": Paragraph("2024年6月3日", "R", "date", [0.2, 0.2]),
-        },
+            Paragraph("心灵怪盗团", "R", "signature", [0.2, 0.2]),
+            Paragraph("20XY年Z月W日", "R", "date", [0.2, 0.2]),
+        ],
+        smooth=True,
     )
-    card.generate()
-    card.save()
+    card.generate(fonts_path=fonts_path)
+    card.save(path="", name="card.png")
 
 
 if __name__ == "__main__":
