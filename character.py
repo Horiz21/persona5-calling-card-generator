@@ -35,12 +35,17 @@ class CharacterStyle:
         self,
         basesize: float,
         rotate_sigma: float,
-        stretch: List[float],
+        stretch: float | List[float] | int | List[int],
         swapcase_rate: float,
     ):
         self.size = basesize * np.clip(normalvariate(1, 0.1), 0.75, 1.25)
         self.rotate_sigma = rotate_sigma
-        self.stretch = stretch
+        if isinstance(stretch, (int, float)):
+            self.stretch = [float(stretch)] * 2
+        elif len(stretch) == 1:
+            self.stretch = [float(stretch[0])] * 2
+        elif len(stretch) == 2:
+            self.stretch = [float(item) for item in stretch]
         self.swapcase_rate = swapcase_rate
 
 
@@ -73,20 +78,20 @@ class Character:
 
         font = ImageFont.truetype(font_path, self.style.size)
 
-        horizon_stretch, vertical_stretch = self.style.stretch
+        horizontal_stretch, vertical_stretch = self.style.stretch
 
         ascent, descent = font.getmetrics()
         width = font.font.getsize(self.character)[0][0]
         height = ascent + descent
 
-        image_width = int(width * (1 + 2 * horizon_stretch))
+        image_width = int(width * (1 + 2 * horizontal_stretch))
         image_height = int(height * (1 + 2 * vertical_stretch))
 
         self.pattern.generate(image_width, image_height)
         self.image = self.pattern.image
         draw_image = ImageDraw.Draw(self.image)
         draw_image.text(
-            xy=(width * horizon_stretch, height * vertical_stretch),
+            xy=(width * horizontal_stretch, height * vertical_stretch),
             text=self.character,
             fill=self.pattern.foreground,
             font=font,
@@ -99,12 +104,12 @@ class Character:
             [
                 (0, 0),
                 (0, 1 + vertical_stretch),
-                (1 + horizon_stretch, 1 + vertical_stretch),
-                (1 + horizon_stretch, 0),
+                (1 + horizontal_stretch, 1 + vertical_stretch),
+                (1 + horizontal_stretch, 0),
             ]
         )
         corners += np.random.uniform(
-            0, [horizon_stretch, vertical_stretch], size=(4, 2)
+            0, [horizontal_stretch, vertical_stretch], size=(4, 2)
         )
         corners *= np.array([width, height])
         corners = tuple(tuple(coordinate) for coordinate in corners)

@@ -16,7 +16,8 @@ def main():
                 text="江郎才尽、虚有其表的大罪人、",
                 style=ParagraphStyle(
                     align="Left",
-                    spacing=0,
+                    float=16,
+                    shift=[-8, 16],
                     character_style=CharacterStyle(
                         basesize=64,
                         rotate_sigma=2,
@@ -39,10 +40,10 @@ def main():
             ),
         ],
         fonts_path=os.path.join(os.path.dirname(__file__), "fonts"),
-        smooth=True,
+        smooth=False,
     )
     card.generate()
-    card.save("", "123.png")
+    card.save("", "p5card.png")
 
 
 if __name__ == "__main__":

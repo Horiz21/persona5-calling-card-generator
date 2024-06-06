@@ -57,7 +57,8 @@
 `ParagarphStyle` 类是 `Paragraph` 类的样式，每个 `Paragraph` 类都有独立的样式。样式的构造函数需要传入：
 
 - `align`: 对齐方式，必须是 `"L"` 或 `"Left"`、`"C"` 或 `"Center"` 或 `"Centre"`、`"R"` 或 `"Right"` 中的一个，大小写不敏感。
-- `spacing`: 段落内字间距。单位是像素(px)。
+- `float`: 单字纵向浮动，整型，单位是像素(px)。程序会将当前所有字的图像在垂直方向居中，然后对每个字进行 `[-float, float]` 的浮动（竖直方向位移）。
+- `shift`: 字间横向偏移，单位是像素(px)。或者为一个 `int` 值，代表横向字距固定为 `shift` 值；或者是一个长度为 2 的整型列表，分别代表字距在 `shift` 区间范围内随机取样。是列表时，右值应当不小于左值。
 - `character_style`：段落内文字样式。见 [后文](#character-类)。
 
 `default_styles.py` 文件设定了一些默认的样式，例如 `TITLE_PARAGRAPH` 和 `CONTENT_PARAGRAPH` 等。

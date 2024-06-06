@@ -55,7 +55,7 @@ class CallingCard:
     ):
         self.image_width = set_width
 
-        if type(padding) == int:
+        if isinstance(padding, int):
             self.padding = [padding] * 4
         elif len(padding) == 1:
             self.padding = padding * 4

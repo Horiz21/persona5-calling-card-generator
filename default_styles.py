@@ -9,7 +9,8 @@ PERSONA5_BACKGROUND = CardBackground(
 
 TITLE_PARAGRAPH = ParagraphStyle(
     align="Right",
-    spacing=0,
+    float=16,
+    shift=18,
     character_style=CharacterStyle(
         basesize=96,
         rotate_sigma=2,
@@ -20,7 +21,8 @@ TITLE_PARAGRAPH = ParagraphStyle(
 
 SUBTITLE_PARAGRAPH = ParagraphStyle(
     align="Left",
-    spacing=0,
+    float=12,
+    shift=[-6, 18],
     character_style=CharacterStyle(
         basesize=72,
         rotate_sigma=2,
@@ -32,7 +34,8 @@ SUBTITLE_PARAGRAPH = ParagraphStyle(
 
 CONTENT_PARAGRAPH = ParagraphStyle(
     align="Center",
-    spacing=0,
+    float=4,
+    shift=[-4, 8],
     character_style=CharacterStyle(
         basesize=54,
         rotate_sigma=2,
@@ -41,10 +44,10 @@ CONTENT_PARAGRAPH = ParagraphStyle(
     ),
 )
 
-
 AUTHOR_PARAGRAPH = ParagraphStyle(
     align="Right",
-    spacing=0,
+    float=8,
+    shift=[4, 8],
     character_style=CharacterStyle(
         basesize=42,
         rotate_sigma=2,
@@ -55,7 +58,8 @@ AUTHOR_PARAGRAPH = ParagraphStyle(
 
 DATE_PARAGRAPH = ParagraphStyle(
     align="Right",
-    spacing=0,
+    float=6,
+    shift=[3, 6],
     character_style=CharacterStyle(
         basesize=36,
         rotate_sigma=2,

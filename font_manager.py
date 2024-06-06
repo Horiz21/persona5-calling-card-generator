@@ -1,11 +1,10 @@
 import os
 from random import choice
 
-FONT_PATH = os.path.join(
+FONTS_PATH = os.path.join(
     os.path.expanduser("~"),
     "AppData/Local/Microsoft/Windows/Fonts",
 )
-# FONTS_PATH = os.path.join(os.path.dirname(__file__), "fonts")
 
 
 class FontManager:

@@ -55,7 +55,8 @@ The constructor of each `Paragarph` instance has two formal parameters.
 The `ParagarphStyle` class is a style for the `Paragraph` class, and each `Paragraph` class has a separate style. The style's constructor needs to be passed in:
 
 - `align`: alignment, must be one of `"L"` or "`Left"`, `"C"` or `"Center"` or `"Centre"`, `"R"` or `"Right"`, case insensitive.
-- `spacing`: The spacing between words in a paragraph.
+- `float`: vertical offset of single character, `int` in pixels. The generator will center the image of all current words vertically, then vertically offset each word by a random value in `[-float, float]`.
+- `shift`: horizontal offset between character in pixels. Either an `int` value, representing the horizontal character spacing fixed to the `shift` value, or an integer list of length 2, representing the word spacing randomly sampled within the `shift` range, respectively. In the case of a list, the right value should be no less than the left value.
 - `character_style`: The style of the text in the paragraph. See [later](#character).
 
 The `default_styles.py` file sets some default styles, such as `TITLE_PARAGRAPH` and `CONTENT_PARAGRAPH`.
