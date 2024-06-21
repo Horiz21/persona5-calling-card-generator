@@ -1,6 +1,5 @@
 import os
 from typing import List
-import numpy as np
 from math import ceil, sqrt
 from PIL import Image, ImageDraw, ImageFilter
 from paragraph import Paragraph
@@ -30,7 +29,7 @@ class CardBackground:
         multipliers = [repeat_count] * element_count
 
         for i in range(repeat_count * element_count):
-            current_radius = np.matmul(multipliers, self.radii)
+            current_radius = sum(m * r for m, r in zip(multipliers, self.radii))
             draw.ellipse(
                 (
                     x_center - current_radius,
@@ -40,7 +39,7 @@ class CardBackground:
                 ),
                 fill=self.colors[~i % element_count],
             )
-            multipliers[~np.argmax(multipliers[::-1])] -= 1
+            multipliers[multipliers.index(max(multipliers))] -= 1
 
 
 class CallingCard:
@@ -91,7 +90,7 @@ class CallingCard:
             for i in range(cnt):
                 image = paragraph.images[i]
                 mask = paragraph.masks[i]
-                if paragraph.style.align.lower() in ["L", "left"]:
+                if paragraph.style.align.lower() in ["l", "left"]:
                     posx = 0
                 elif paragraph.style.align.lower() in ["c", "center", "centre"]:
                     posx = (self.content_max_width - image.width) // 2

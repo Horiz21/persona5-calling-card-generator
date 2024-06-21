@@ -2,7 +2,7 @@ from typing import List
 from character import Pattern, CharacterStyle, Character
 from PIL import Image
 from random import randint, choices
-
+from copy import deepcopy
 from font_manager import FontManager
 
 SCHEME = ["light", "dark"]
@@ -14,25 +14,25 @@ PATTERN_WEIGHT = [15, 2, 2, 1]
 class ParagraphStyle:
     def __init__(
         self,
-        align: str,
-        float: int,
-        shift: int | List[int],
-        character_style: CharacterStyle,
+        align: str = "left",
+        character_style: CharacterStyle = CharacterStyle(),
+        float: int = 0,
+        shift: int | List[int] = 0,
     ):
         self.align = align
         self.float = float
         self.shift = shift if isinstance(shift, list) else [shift] * 2
-        self.character_style = character_style
+        self.character_style = deepcopy(character_style)
 
 
 class Paragraph:
     def __init__(
         self,
-        text: str,
-        style: ParagraphStyle,
+        text: str = "",
+        style: ParagraphStyle = ParagraphStyle(),
     ):
         self.text = text
-        self.style = style
+        self.style = deepcopy(style)
         self.images = []
         self.masks = []
 
@@ -78,27 +78,35 @@ class Paragraph:
 
     def generate(self, content_max_width: int, fonts_path: str):
         self.font_manager = FontManager(fonts_path)
+        self.images.clear()
+        self.masks.clear()
 
-        i = 0
-        while i < len(self.text):
-            if self.text[i] in ["\n", "\r"]:
-                self.horizontal_arrange(content_max_width)
+        if len(self.text) > 0:
+            i = 0
+            while i < len(self.text):
+                if self.text[i] in ["\n", "\r"]:
+                    self.horizontal_arrange(content_max_width)
+                    i += 1
+                    continue
+
+                character = Character(
+                    character=self.text[i],
+                    style=self.style.character_style,
+                    pattern=Pattern(
+                        mode=choices(SCHEME, weights=SCHEME_WEIGHT)[0],
+                        type=choices(PATTERN, weights=PATTERN_WEIGHT)[0],
+                    ),
+                )
+                character.generate(font_path=self.font_manager.choice())
+
+                self.work_images.append(character.image)
+                self.work_masks.append(character.mask)
                 i += 1
-                continue
+            self.horizontal_arrange(content_max_width)
+            self.height = sum(image.height for image in self.images)
+        else:
+            self.images = [Image.new("L", (0, 0))]
+            self.masks = [Image.new("L", (0, 0))]
 
-            character = Character(
-                character=self.text[i],
-                style=self.style.character_style,
-                pattern=Pattern(
-                    mode=choices(SCHEME, weights=SCHEME_WEIGHT)[0],
-                    type=choices(PATTERN, weights=PATTERN_WEIGHT)[0],
-                ),
-            )
-            character.generate(font_path=self.font_manager.choice())
-
-            self.work_images.append(character.image)
-            self.work_masks.append(character.mask)
-            i += 1
-
-        self.horizontal_arrange(content_max_width)
-        self.height = sum(image.height for image in self.images)
+    def set_align(self, align):
+        self.style.align = align

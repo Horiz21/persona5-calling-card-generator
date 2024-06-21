@@ -1,446 +1,402 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
-from PIL import ImageTk
+from tkinter import ttk, messagebox, filedialog
 import re
 from calling_card import *
 from paragraph import *
 from character import *
+from time import time
 
 
-def isnumber(s):
-    return s.isdigit() or (s.count(".") == 1 and s.replace(".", "").isdigit())
+def parse_to_num(parsee, default_value):
+    try:
+        return int(parsee)
+    except:
+        return default_value
 
 
-class TextModule:
+class AdvancedTextEditToplevel(tk.Toplevel):
+    def __init__(self, root, paragraph):
+        super().__init__(root)
+        self.root = root
+        self.paragraph = paragraph
+        self.title("高级文本编辑")
+        self.result = None
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.text_label = ttk.Label(self, text="内容")
+        self.text_label.grid(row=0, column=0)
+
+        self.text_content = tk.Text(self, height=4, wrap=tk.WORD)
+        self.text_content.grid(row=0, column=1)
+        self.text_content.insert(tk.END, self.paragraph.text)
+
+        self.size_label = ttk.Label(self, text="字号")
+        self.size_label.grid(row=1, column=0)
+
+        self.size = ttk.Spinbox(self, from_=24, to=128, increment=4, width=6)
+        self.size.grid(row=1, column=1, sticky="ew")
+        self.size.set(int(self.paragraph.style.character_style.size))
+
+        self.align_label = ttk.Label(self, text="对齐")
+        self.align_label.grid(row=2, column=0)
+        self.align = ttk.Combobox(self, values=["left", "center", "right"])
+        self.align.grid(row=2, column=1, sticky="ew")
+        self.align.set(self.paragraph.style.align)
+
+        self.button_frame = ttk.Frame(self)
+        self.button_frame.grid(row=3, column=0, columnspan=2)
+
+        self.delete_button = ttk.Button(
+            self.button_frame, text="删除", command=self.delete_row
+        )
+        self.delete_button.grid(row=0, column=0)
+
+        self.save_button = ttk.Button(
+            self.button_frame, text="保存", command=self.save_changes
+        )
+        self.save_button.grid(row=0, column=1, padx=10)
+
+    def delete_row(self):
+        self.result = False
+        self.destroy()
+
+    def save_changes(self):
+        self.result = Paragraph(
+            text=self.text_content.get("1.0", tk.END),
+            style=ParagraphStyle(
+                align=self.align.get(),
+                character_style=CharacterStyle(basesize=self.size.get()),
+            ),
+        )
+        self.destroy()
+
+
+class TextEditFrame:
     def __init__(self, root):
-        self.master = ttk.Frame(root)
-        self.master.pack()
+        self.master = ttk.LabelFrame(root, text="文本", padding=5)
+        self.master.pack(padx=10, pady=10)
 
-        for i, header in enumerate(
-            [
-                "文本内容",
-                "字号",
-                "对齐方式",
-                "水平间距",
-                "垂直偏移",
-                "旋转",
-                "水平拉伸",
-                "垂直拉伸",
-                "字母切换",
-            ]
-        ):
-            ttk.Label(
-                self.master,
-                text=header,
-                justify="center",
-                anchor="center",
-                width=30 if i == 0 else 8,
-            ).grid(row=0, column=i)
+        self.para_frame = ttk.Frame(self.master)
+        self.para_frame.grid(row=0, column=0)
 
-        self.entry_text = ttk.Entry(self.master, width=30)
-        self.entry_text.grid(row=1, column=0)
+        self.add_button = ttk.Button(self.master, text="+", command=self.add_row)
+        self.add_button.grid(row=1, column=0)
 
-        self.entry_basesize = ttk.Spinbox(
-            self.master,
-            width=8,
-            justify="center",
-            from_=8,
-            to=120,
-            increment=4,
-        )
-        self.entry_basesize.grid(row=1, column=1)
+        ttk.Label(self.para_frame, text="文本").grid(row=0, column=0)
+        ttk.Label(self.para_frame, text="字号").grid(row=0, column=1)
+        ttk.Label(self.para_frame, text="对齐").grid(row=0, column=2)
+        ttk.Label(self.para_frame, text="更多操作").grid(row=0, column=3)
 
-        self.entry_align = ttk.Combobox(
-            self.master,
-            width=8,
-            justify="center",
-            values=["居左", "居中", "居右"],
-        )
-        self.entry_align.grid(row=1, column=2)
+        self.paragraphs = {}
+        self.rows = {}
 
-        self.entry_shift = ttk.Spinbox(
-            self.master,
-            width=8,
-            justify="center",
-            from_=0,
-            to=10,
-            increment=1,
-        )
-        self.entry_shift.grid(row=1, column=3)
+        self.toplevel = False
 
-        self.entry_float = ttk.Spinbox(
-            self.master,
-            width=8,
-            justify="center",
-            from_=0,
-            to=10,
-            increment=1,
-        )
-        self.entry_float.grid(row=1, column=4)
+        self.add_row()
 
-        self.entry_rotate_sigma = ttk.Spinbox(
-            self.master,
-            width=8,
-            justify="center",
-            from_=0,
-            to=30,
-            increment=1,
-        )
-        self.entry_rotate_sigma.grid(row=1, column=5)
-
-        self.entry_horizontal_stretch = ttk.Spinbox(
-            self.master,
-            width=8,
-            justify="center",
-            from_=0,
-            to=1,
-            increment=0.05,
-        )
-        self.entry_horizontal_stretch.grid(row=1, column=6)
-
-        self.entry_vertical_stretch = ttk.Spinbox(
-            self.master,
-            width=8,
-            justify="center",
-            from_=0,
-            to=1,
-            increment=0.05,
-        )
-        self.entry_vertical_stretch.grid(row=1, column=7)
-
-        self.entry_swapcase = ttk.Spinbox(
-            self.master,
-            width=8,
-            justify="center",
-            from_=0,
-            to=1,
-            increment=0.05,
-        )
-        self.entry_swapcase.grid(row=1, column=8)
-
-        self.button_add = ttk.Button(
-            self.master, text="➕", width=2, command=self.add_row
-        )
-        self.button_add.grid(row=1, column=9)
-
-        self.rows = []
+    def update_paragraph(self, key):
+        row = self.rows[key]
+        columns = self.para_frame.grid_slaves(row=row)
+        self.paragraphs[key].text = columns[~0].get()
+        self.paragraphs[key].style.character_style.size = columns[~1].get()
+        self.paragraphs[key].style.align = columns[~2].get()
 
     def add_row(self):
-        text = self.entry_text.get()
-        basesize = self.entry_basesize.get()
-        align = self.entry_align.get()
-        shift = self.entry_shift.get()
-        float_ = self.entry_float.get()
-        rotate_sigma = self.entry_rotate_sigma.get()
-        horizontal_stretch = self.entry_horizontal_stretch.get()
-        vertical_stretch = self.entry_vertical_stretch.get()
-        swapcase = self.entry_swapcase.get()
+        key = time()
+        row = (max(self.rows.values()) if len(self.rows) > 0 else 0) + 1
 
-        if len(text) < 1:
-            messagebox.showerror("Invalid", "Invalid Text Input!")
-            return
+        text = ttk.Entry(self.para_frame, width=25)
+        text.grid(row=row, column=0)
+        text.bind("<FocusOut>", lambda event: self.update_paragraph(key=key))
 
-        if not basesize.isdigit():
-            messagebox.showerror("Invalid", "Invalid Font Size Input!")
-            return
+        size = ttk.Spinbox(self.para_frame, from_=24, to=128, increment=4, width=6)
+        size.grid(row=row, column=1)
+        size.insert(0, "24")
+        size.bind("<FocusOut>", lambda event: self.update_paragraph(key=key))
 
-        if align not in ["居左", "居中", "居右"]:
-            messagebox.showerror("Invalid", "Invalid Align Input!")
-            return
-
-        if not shift.isdigit():
-            messagebox.showerror("Invalid", "Invalid Shift Input!")
-            return
-
-        if not float_.isdigit():
-            messagebox.showerror("Invalid", "Invalid Float Input!")
-            return
-
-        if not isnumber(rotate_sigma):
-            messagebox.showerror("Invalid", "Invalid Rotate Sigma Input!")
-            return
-
-        if (
-            not isnumber(horizontal_stretch)
-            or isnumber(horizontal_stretch)
-            and not 0 <= float(horizontal_stretch) <= 1
-        ):
-            messagebox.showerror("Invalid", "Invalid Horizontal Stretch Input!")
-            return
-
-        if (
-            not isnumber(vertical_stretch)
-            or isnumber(vertical_stretch)
-            and not 0 <= float(vertical_stretch) <= 1
-        ):
-            messagebox.showerror("Invalid", "Invalid Vertical Stretch Input!")
-            return
-
-        if (
-            not isnumber(swapcase)
-            or isnumber(swapcase)
-            and not 0 <= float(swapcase) <= 1
-        ):
-            messagebox.showerror("Invalid", "Invalid Swapcase Rate Input!")
-            return
-
-        widgets = []
-        for i, item in enumerate(
-            [
-                text,
-                basesize,
-                align,
-                shift,
-                float_,
-                rotate_sigma,
-                horizontal_stretch,
-                vertical_stretch,
-                swapcase,
-            ]
-        ):
-            widget = ttk.Label(
-                self.master,
-                text=item,
-                justify="center",
-                anchor="center",
-            )
-            widget.grid(row=len(self.rows) + 2, column=i)
-            widgets.append(widget)
-        widget = ttk.Button(
-            self.master,
-            text="✖",
-            width=2,
-            command=lambda w=widgets: self.delete_row(w),
+        align = ttk.Combobox(
+            self.para_frame, width=6, values=["left", "center", "right"]
         )
-        widget.grid(row=len(self.rows) + 2, column=9)
-        widgets.append(widget)
+        align.grid(row=row, column=2)
+        align.insert(0, "left")
+        align.bind("<FocusOut>", lambda event: self.update_paragraph(key=key))
 
-        self.rows.append(widgets)
-
-    def delete_row(self, widgets):
-        for widget in widgets:
-            widget.grid_forget()
-        self.rows.remove(widgets)
-
-        # 重新排列剩余的行
-        for i, row in enumerate(self.rows, start=2):
-            for j, widget in enumerate(row):
-                widget.grid(row=i, column=j)
-
-    def get_info(self):
-        res = []
-        for item in self.rows:
-            text = item[0].cget("text")
-            basesize = int(item[1].cget("text"))
-            align = (
-                "l"
-                if item[2].cget("text") == "居左"
-                else "r" if item[2].cget("text") == "居右" else "c"
-            )
-            shift = int(item[3].cget("text"))
-            float_ = int(item[4].cget("text"))
-            rotate_sigma = float(item[5].cget("text"))
-            horizontal_stretch = float(item[6].cget("text"))
-            vertical_stretch = float(item[7].cget("text"))
-            swapcase = float(item[8].cget("text"))
-            res.append(
-                [
-                    text,
-                    basesize,
-                    align,
-                    shift,
-                    float_,
-                    rotate_sigma,
-                    horizontal_stretch,
-                    vertical_stretch,
-                    swapcase,
-                ]
-            )
-        return res
-
-
-class ColorModule:
-    def __init__(self, root):
-        self.master = ttk.Frame(root)
-        self.master.pack()
-        self.rows = []
-
-        # 创建表格标题
-        ttk.Label(self.master, text="颜色", justify="center", anchor="center").grid(
-            row=0, column=0
+        # more = ttk.Button(
+        #     self.para_frame,
+        #     text="…",
+        #     width=6,
+        #     command=lambda: self.edit_row(key),
+        # )
+        more = ttk.Button(
+            self.para_frame, text="×", width=6, command=lambda: self.delete_row(key=key)
         )
-        ttk.Label(self.master, text="半径", justify="center", anchor="center").grid(
-            row=0, column=1
-        )
+        more.grid(row=row, column=3)
 
-        # 创建输入行
-        self.entry_color = ttk.Entry(self.master, width=10, justify="center")
-        self.entry_color.grid(row=1, column=0)
-        self.entry_radius = ttk.Entry(self.master, width=5, justify="center")
-        self.entry_radius.grid(row=1, column=1)
-        self.button_add = ttk.Button(
-            self.master, text="➕", width=2, command=self.add_row
-        )
-        self.button_add.grid(row=1, column=2)
+        self.paragraphs[key] = Paragraph()
+        self.rows[key] = row
 
-    def add_row(self):
-        color = self.entry_color.get()
-        radius = self.entry_radius.get()
-
-        match = re.match(r"^#?([0-9A-Fa-f]{6})$", color)
-
-        if not match:
-            messagebox.showerror("Invalid", "Invalid Color Input!")
+    def edit_row(self, key):
+        if self.toplevel:
+            messagebox.showwarning("禁止", "一次请只完成一个编辑！")
             return
-        elif not radius.isdigit() or int(radius) <= 0:
-            messagebox.showerror("Invalid", "Invalid Radius Input!")
-            return
+        self.toplevel = True
+        row = self.rows[key]
+        columns = self.para_frame.grid_slaves(row=row)
+
+        self.paragraphs[key].text = columns[~0].get()
+        self.paragraphs[key].style.character_style.size = parse_to_num(
+            columns[~1].get(), 24
+        )
+        self.paragraphs[key].style.align = columns[~2].get()
+
+        dialog = AdvancedTextEditToplevel(self.master, self.paragraphs[key])
+        dialog.wait_window()
+        self.toplevel = False
+        if dialog.result is False:
+            self.delete_row(key)
+        elif dialog.result is None:
+            pass
         else:
-            color = f"#{color[-6:]}"
+            self.paragraphs[key] = dialog.result
+            columns[~0].delete(0, tk.END)
+            columns[~0].insert(0, dialog.result.text)
+            columns[~1].delete(0, tk.END)
+            columns[~1].insert(0, int(dialog.result.style.character_style.size))
+            columns[~2].delete(0, tk.END)
+            columns[~2].insert(0, dialog.result.style.align)
 
-        label_color = ttk.Label(
-            self.master,
-            text=color,
-            width=10,
-            background=color,
-            justify="center",
-            anchor="center",
-        )
-        label_radius = ttk.Label(
-            self.master,
-            width=5,
-            text=radius,
-            justify="center",
-            anchor="center",
-        )
-        button_delete = ttk.Button(
-            self.master,
-            text="✖",
-            width=2,
-            command=lambda: self.delete_row(label_color, label_radius, button_delete),
-        )
-
-        row_number = len(self.rows) + 2
-        print(row_number)
-        label_color.grid(row=row_number, column=0)
-        label_radius.grid(row=row_number, column=1)
-        button_delete.grid(row=row_number, column=2)
-
-        self.rows.append((label_color, label_radius, button_delete))
-
-        self.entry_color.delete(0, "end")
-        self.entry_radius.delete(0, "end")
-
-    def delete_row(self, label_color, label_radius, button_delete):
-        label_color.grid_forget()
-        label_radius.grid_forget()
-        button_delete.grid_forget()
-
-        self.rows.remove((label_color, label_radius, button_delete))
-
-        for i, row in enumerate(self.rows, start=2):
-            for j, widget in enumerate(row):
-                widget.grid(row=i, column=j)
+    def delete_row(self, key):
+        if len(self.rows) <= 1:
+            messagebox.showwarning("禁止", "至少保留一个段落！")
+            return
+        self.paragraphs.pop(key)
+        row = self.rows.pop(key)
+        columns = self.para_frame.grid_slaves(row=row)
+        for column in columns:
+            column.grid_forget()
 
     def get_info(self):
-        colors = [color.cget("text") for color, _, _ in self.rows]
-        radii = [int(radii.cget("text")) for _, radii, _ in self.rows]
+        return list(self.paragraphs.values())
 
+
+class ColorEditFrame:
+    def __init__(self, root):
+        self.master = ttk.LabelFrame(root, text="颜色", padding=5)
+        self.master.pack(padx=10, pady=10)
+
+        self.color_frame = ttk.Frame(self.master)
+        self.color_frame.grid(row=0, column=0)
+
+        ttk.Button(self.master, text="+", command=self.add_row).grid(row=1, column=0)
+
+        ttk.Label(self.color_frame, text="预览").grid(row=0, column=0)
+        ttk.Label(self.color_frame, text="颜色").grid(row=0, column=1)
+        ttk.Label(self.color_frame, text="半径").grid(row=0, column=2)
+        ttk.Label(self.color_frame, text="删除").grid(row=0, column=3)
+
+        self.rows = {}
+
+        self.add_row("#FF0000", "120")
+        self.add_row("#000000", "150")
+
+    def change_color(self, key):
+        row = self.rows[key]
+        color_entry = self.color_frame.grid_slaves(row=row)
+        color = color_entry[~1].get()
+        match = re.match(r"^#?([0-9A-Fa-f]{6})$", color)
+        if match:
+            color_entry[~0].config(text="")
+            color_entry[~0].config(background=f"#{color[-6:]}")
+        else:
+            color_entry[~0].config(text="?")
+            color_entry[~0].config(background="white")
+
+    def add_row(self, color_value="#FF0000", radius_value="120"):
+        key = time()
+        row = (max(self.rows.values()) if len(self.rows) > 0 else 0) + 1
+        self.rows[key] = row
+
+        label = ttk.Label(
+            self.color_frame,
+            width=10,
+            background=color_value,
+            foreground="red",
+            anchor="center",
+            justify="center",
+        )
+        label.grid(row=row, column=0)
+
+        color = ttk.Entry(self.color_frame, width=10, justify="center")
+        color.insert(0, color_value)
+        color.grid(row=row, column=1)
+        color.bind("<FocusOut>", lambda event: self.change_color(key=key))
+        radius = ttk.Spinbox(self.color_frame, from_=30, to=150, increment=10, width=6)
+        radius.grid(row=row, column=2)
+        radius.insert(0, radius_value)
+
+        ttk.Button(
+            self.color_frame,
+            text="×",
+            width=6,
+            command=lambda: self.delete_row(key),
+        ).grid(row=row, column=3)
+
+    def delete_row(self, key):
+        if len(self.rows) <= 1:
+            messagebox.showwarning("禁止", "至少保留一个颜色！")
+            return
+        row = self.rows.pop(key)
+        columns = self.color_frame.grid_slaves(row=row)
+        for column in columns:
+            column.grid_forget()
+
+    def get_info(self):
+        colors = []
+        radii = []
+        for row in self.rows.values():
+            columns = self.color_frame.grid_slaves(row=row)
+            colors.append(columns[~1].get())
+            radii.append(int(columns[~2].get()))
         return colors, radii
 
 
-class InfoModule:
+class InfoEditFrame:
     def __init__(self, root):
-        self.master = ttk.Frame(root)
-        self.master.pack()
+        # self.master = ttk.LabelFrame(root, text="尺寸与平滑", padding=5)
+        self.master = ttk.LabelFrame(root, text="基本信息", padding=5)
+        self.master.pack(padx=10, pady=10)
 
-        label_width = tk.Label(self.master, text="宽度")
+        label_width = tk.Label(self.master, text="图像宽度")
         label_width.grid(row=0, column=0)
-        self.entry_width = ttk.Entry(self.master, width=12)
+        self.entry_width = ttk.Entry(self.master)
         self.entry_width.insert(0, 1600)
         self.entry_width.grid(row=0, column=1)
 
-        label_height = tk.Label(self.master, text="高度")
-        label_height.grid(row=1, column=0)
-        self.entry_height = ttk.Entry(self.master, width=12)
-        self.entry_height.insert(0, "Auto")
-        self.entry_height.config(state="readonly")
-        self.entry_height.grid(row=1, column=1)
+        # label_height = tk.Label(self.master, text="高度")
+        # label_height.grid(row=1, column=0)
+        # self.entry_height = ttk.Entry(self.master, width=12)
+        # self.entry_height.insert(0, "Auto")
+        # self.entry_height.config(state="readonly")
+        # self.entry_height.grid(row=1, column=1)
 
-        label_smooth = tk.Label(self.master, text="平滑度")
-        label_smooth.grid(row=2, column=0)
-        self.entry_smooth = ttk.Entry(self.master, width=12)
-        self.entry_smooth.insert(0, 0)
-        self.entry_smooth.grid(row=2, column=1)
+        label_font_path = ttk.Label(self.master, text="字体目录")
+        label_font_path.grid(row=1, column=0)
+        self.entry_font_path = ttk.Entry(self.master)
+        self.entry_font_path.grid(row=1, column=1)
+        font_path_button = ttk.Button(
+            self.master, text="选择", width=6, command=lambda: self.path_select("font")
+        )
+        font_path_button.grid(row=1, column=2)
+
+        label_save_path = ttk.Label(self.master, text="保存目录")
+        label_save_path.grid(row=2, column=0)
+        self.entry_save_path = ttk.Entry(self.master)
+        self.entry_save_path.grid(row=2, column=1)
+        save_path_button = ttk.Button(
+            self.master, text="选择", width=6, command=lambda: self.path_select("save")
+        )
+        save_path_button.grid(row=2, column=2)
+
+        # label_smooth = tk.Label(self.master, text="平滑度")
+        # label_smooth.grid(row=2, column=0)
+        # self.entry_smooth = ttk.Entry(self.master, width=12)
+        # self.entry_smooth.insert(0, 0)
+        # self.entry_smooth.grid(row=2, column=1)
+
+    def path_select(self, type):
+        selected_dir = filedialog.askdirectory()
+        if type == "font":
+            self.entry_font_path.delete(0, tk.END)
+            self.entry_font_path.insert(0, selected_dir)
+        elif type == "save":
+            self.entry_save_path.delete(0, tk.END)
+            self.entry_save_path.insert(0, selected_dir)
 
     def get_info(self):
+        # width = int(self.entry_width.get())
+        # height = self.entry_font_path.get()
+        # if height.lower() == "auto":
+        #     height = width * 0.75
+        # return int(width), int(height)
         width = int(self.entry_width.get())
-        height = self.entry_height.get()
-        if height.lower() == "auto":
-            height = width * 0.75
-        return int(width), int(height)
+        font_path = self.entry_font_path.get()
+        save_path = self.entry_save_path.get()
+        return width, font_path, save_path
 
 
 class GeneratorGUI:
     def __init__(self):
         self.gui = tk.Tk()
-        self.gui.title("P5CCG")
-        self.gui.iconbitmap("Fun/persona5_calling_card_generator/p5ccg.ico")
+        self.gui.title("Persona 5 预告信生成器 - Github @Horiz21")
+        self.gui.iconbitmap("./p5ccg.ico")
 
-        self.frame_config = tk.Frame(self.gui)
-        self.frame_config.grid(row=0, column=0)
-        self.frame_view = tk.Frame(self.gui)
-        self.frame_view.grid(row=0, column=1)
+        self.main_frame = tk.Frame(self.gui, padx=10, pady=10)
+        self.main_frame.pack()
 
-        self.frame_color_config = ColorModule(self.frame_config)
-        self.frame_text_config = TextModule(self.frame_config)
-        self.frame_size_config = InfoModule(self.frame_config)
+        self.frame_info_edit = InfoEditFrame(self.main_frame)
+        self.frame_color_edit = ColorEditFrame(self.main_frame)
+        self.frame_text_edit = TextEditFrame(self.main_frame)
+        frame_button = tk.Frame(self.main_frame)
+        frame_button.pack(side="bottom", expand=True, fill="both", padx=20)
 
-        self.image_generate = ttk.Label(self.frame_view)
-        self.image_generate.pack(side="top")
-
+        button_help = ttk.Button(frame_button, text="?", width=2, command=self.help)
+        button_help.pack(side="left")
         button_generate = ttk.Button(
-            self.frame_view,
-            text="Generate",
+            frame_button,
+            text="生成",
             command=self.generate,
         )
-        button_generate.pack(side="bottom")
+        button_generate.pack(expand=True, fill="both")
 
     def generate(self):
-        colors, radii = self.frame_color_config.get_info()
-        width, height = self.frame_size_config.get_info()
+        colors, radii = self.frame_color_edit.get_info()
+        # width, height = self.frame_info_edit.get_info()
+        width, font_path, save_path = self.frame_info_edit.get_info()
 
-        paragraphs = []
-        texts = self.frame_text_config.get_info()
-        for text in texts:
-            paragraphs.append(
-                Paragraph(
-                    text=text[0],
-                    style=ParagraphStyle(
-                        align=text[2],
-                        float=text[4],
-                        shift=text[3],
-                        character_style=CharacterStyle(
-                            basesize=text[1],
-                            rotate_sigma=text[5],
-                            stretch=[text[6], text[7]],
-                            swapcase_rate=text[8],
-                        ),
-                    ),
-                )
+        self.font_path = (
+            font_path
+            if os.path.isdir(font_path)
+            else os.path.join(
+                os.path.expanduser("~"),
+                "AppData/Local/Microsoft/Windows/Fonts",
             )
+        )
+        self.save_path = (
+            save_path if os.path.isdir(save_path) else os.path.expanduser("~")
+        )
 
         card = CallingCard(
             set_width=width,
             padding=10,
             background=CardBackground(radii=radii, colors=colors),
-            fonts_path="Fun/persona5_calling_card_generator/fonts",
-            paragraphs=paragraphs,
+            fonts_path=self.font_path,
+            paragraphs=self.frame_text_edit.get_info(),
             smooth=False,
         )
         card.generate()
-        self.show_image = ImageTk.PhotoImage(card.image)
-        self.image_generate.config(image=self.show_image),
+        # self.show_image = ImageTk.PhotoImage(card.image)
+        # self.image_generate.config(image=self.show_image),
+        card.image.show()
+        card.image.save(self.save_path + "/p5cc_" + str(int(time())) + ".png")
+
+    def help(self):
+        help_message = """Persona 5 预告信生成器 (Alpha-20240621)
+
+使用方法：
+1. 以十六进制色值输入背景颜色和同心圆宽度，可用于自定义背景。默认情况下，已经给出了原版 Persona 5 的预告信背景方案。
+2. 以段落为单位输入文本。各段落可独立调整字号、对齐方式。
+3. 对于 Windows 用户，字体路径默认为系统字体路径。该路径存在许多字库不全的字体和特殊字体，可能会造成较差的生成效果。推荐自行选择“字体目录”，以指定特殊字体。
+4. 对于 Windows 用户，将默认保存在用户目录下，文件名为 p5cc_时间.png。推荐自行选择“保存目录”。
+
+注意事项：
+1. 文本段落和各需保留至少一项。
+2. GUI 界面暂未支持更复杂的自定义功能。请通过源代码调整。
+3. 若存在问题，请在仓库中提出 issue 或邮件告知 (htl.me@outlook.com)。
+
+感谢关注和使用该项目，GitHub 仓库地址：https://github.com/Horiz21/persona5-calling-card-generator
+"""
+        messagebox.showinfo(title="帮助信息", message=help_message)
 
     def mainloop(self):
         self.gui.mainloop()

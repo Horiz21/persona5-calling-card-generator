@@ -1,8 +1,7 @@
 from typing import List
-import numpy as np
 from math import ceil
 from PIL import Image, ImageDraw, ImageFont
-from random import random, randint, normalvariate
+from random import random, randint, normalvariate, uniform
 
 
 class Pattern:
@@ -33,13 +32,13 @@ class Pattern:
 class CharacterStyle:
     def __init__(
         self,
-        basesize: float,
-        rotate_sigma: float,
-        stretch: float | List[float] | int | List[int],
-        swapcase_rate: float,
+        basesize: int = 24,
+        rotate_sigma: float = 2,
+        stretch: float | List[float] = [0.2, 0.4],
+        swapcase_rate: float = 0.25,
     ):
-        self.size = basesize * np.clip(normalvariate(1, 0.1), 0.75, 1.25)
-        self.rotate_sigma = rotate_sigma
+        self.size = int(basesize)
+        self.rotate_sigma = float(rotate_sigma)
         if isinstance(stretch, (int, float)):
             self.stretch = [float(stretch)] * 2
         elif len(stretch) == 1:
@@ -59,13 +58,16 @@ class Character:
         self.character = character
         self.style = style
         self.pattern = pattern
+        self.random_size = float(style.size) * max(
+            0.75, min(normalvariate(1, 0.1), 1.25)
+        )
 
     def generate(
         self,
         font_path: str,
     ):
         if self.character.isspace():
-            space_image = Image.new("L", (ceil(self.style.size / 2), 0))
+            space_image = Image.new("L", (ceil(self.random_size / 2), 0))
             self.image = space_image
             self.mask = space_image
             return
@@ -76,7 +78,7 @@ class Character:
         ):
             self.character = self.character.swapcase()
 
-        font = ImageFont.truetype(font_path, self.style.size)
+        font = ImageFont.truetype(font_path, self.random_size)
 
         horizontal_stretch, vertical_stretch = self.style.stretch
 
@@ -100,18 +102,24 @@ class Character:
         self.mask = Image.new("L", (image_width, image_height), 0)
         draw_mask = ImageDraw.Draw(self.mask)
 
-        corners = np.array(
-            [
-                (0, 0),
-                (0, 1 + vertical_stretch),
-                (1 + horizontal_stretch, 1 + vertical_stretch),
-                (1 + horizontal_stretch, 0),
-            ]
-        )
-        corners += np.random.uniform(
-            0, [horizontal_stretch, vertical_stretch], size=(4, 2)
-        )
-        corners *= np.array([width, height])
+        corners = [
+            (0, 0),
+            (0, 1 + vertical_stretch),
+            (1 + horizontal_stretch, 1 + vertical_stretch),
+            (1 + horizontal_stretch, 0),
+        ]
+
+        random_offsets = [
+            (uniform(0, horizontal_stretch), uniform(0, vertical_stretch))
+            for _ in range(4)
+        ]
+
+        corners = [
+            (corners[i][0] + random_offsets[i][0], corners[i][1] + random_offsets[i][1])
+            for i in range(4)
+        ]
+
+        corners = [(corners[i][0] * width, corners[i][1] * height) for i in range(4)]
         corners = tuple(tuple(coordinate) for coordinate in corners)
 
         draw_mask.polygon(corners, fill=0xFF)
