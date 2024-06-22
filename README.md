@@ -4,6 +4,8 @@
 
 ![Title](image/title.png)
 
+P5CCG allows you to effortlessly create calling cards with the signature look of Persona 5. In just a few minutes, you can craft personalized calling cards for your personal projects, fan works, or simply to express your love for the game.
+
 ## Main Features
 
 - Generate Persona 5 style calling cards
@@ -16,12 +18,21 @@ An example of generation is shown below:
 
 ## How to use
 
-- For users unfamiliar with Python, a packaged `.exe` file is posted on the release page of this repository, which can be downloaded and used. Currently, only the Windows version is available.
-- For those who are familiar with Python or are willing to read the code, all you need to do is read and modify the input parameter `card = CallingCard(...)' in the `main()` function of the `demo.py` file. ` input parameter in the `main()` function of the `demo.py` file. Note: At least one library, Pillow (PIL), needs to be installed to run this script.
+### GUI
+
+For those unfamiliar with Python, a packaged `.exe` file is available on the release page of this repository, just download it and use it. Currently, only the Windows version is available. Help is available in the lower left corner of the software interface.
+
+**Note**: In some Windows versions, P5CCG may not recognize the default user font directory correctly, resulting in a failure. To avoid this problem, we strongly recommend that all P5CCG users create program-specific font libraries to hold candidate generated fonts. This will also prevent garbage and gaps caused by incomplete font libraries.
+
+### Source code
+
+For those who are familiar with Python or are willing to read the code, all you need to do is read and modify the input parameter `card = CallingCard(...)' in the `main()` function of the `demo.py` file. ` input parameter in the `main()` function of the `demo.py` file. More advanced parameters can be unlocked by using P5CCG with source code.
+
+**NOTE**: At least Pillow (PIL) needs to be installed to run this script.
 
 ## Parameters
 
-For GUI users, help documentation is available in the lower left corner of the software interface (the '?' button). For interested developers and advanced feature users, this section shows more detailed instructions.
+For interested developers and advanced feature users, this section shows more detailed instructions.
 
 ### `CallingCard`
 

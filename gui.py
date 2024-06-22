@@ -370,6 +370,14 @@ class GeneratorGUI:
                     "AppData/Local/Microsoft/Windows/Fonts",
                 )
             )
+
+            if not os.path.isdir(self.font_path):
+                messagebox.showerror(
+                    "字体目录错误",
+                    "P5CCG 无法找到字体，请选择包含且仅包含字体文件的非系统文件夹。",
+                )
+                return
+
             self.save_path = (
                 save_path if os.path.isdir(save_path) else os.path.expanduser("~")
             )
@@ -394,7 +402,7 @@ class GeneratorGUI:
 1. 图像宽度是否是正整数。
 2. 所有颜色是否都具有正确格式的色值和半径。
 3. 所有段落是否都具有合法的字号值（整数）和对齐方式（left/center/right）。
-4. 字体目录是否存在；目录中是否仅包含字体文件，且至少有一项字体文件。
+4. 字体目录是否存在；目录中是否仅包含字体文件，且至少有一项字体文件；目录是否可访问。
 5. 保存目录是否存在。
 
 建议检查和修改以上内容。如仍存在问题，请在 GitHub 仓库提出 Issue。""",
@@ -412,8 +420,9 @@ class GeneratorGUI:
 注意事项：
 1. 文本段落和各需保留至少一项。
 2. GUI 界面暂未支持更复杂的自定义功能。请通过源代码调整。
-3. 若存在问题，请在仓库中提出 Issue 或邮件告知 (htl.me@outlook.com)。
-4. 若存在建议，请在仓库中提出 Discussion。
+3. 对于系统字体目录（例如：C:\Windows\Fonts），P5CCG 可能由于系统权限、系统版本或其他原因无法读取。强烈建议额外创建一个目录，用于存放候选生成的字体。
+4. 若存在问题，请在仓库中提出 Issue 或邮件告知 (htl.me@outlook.com)。
+5. 若存在建议，请在仓库中提出 Discussion。
 
 感谢关注和使用该项目，GitHub 仓库地址：https://github.com/Horiz21/persona5-calling-card-generator
 
