@@ -11,3 +11,4 @@ working/
 build/
 dist/
 *.exe
+*.spec

@@ -5,6 +5,13 @@ from calling_card import *
 from paragraph import *
 from character import *
 from time import time
+import os
+import sys
+
+
+def resource_path(relative_path):
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 
 def parse_to_num(parsee, default_value):
@@ -168,7 +175,7 @@ class TextEditFrame:
 
     def delete_row(self, key):
         if len(self.rows) <= 1:
-            messagebox.showwarning("禁止", "至少保留一个段落！")
+            messagebox.showwarning("删除失败", "至少保留一个段落！")
             return
         self.paragraphs.pop(key)
         row = self.rows.pop(key)
@@ -200,7 +207,7 @@ class ColorEditFrame:
         self.add_row("#FF0000", "120")
         self.add_row("#000000", "150")
 
-    def change_color(self, key):
+    def update_color(self, key):
         row = self.rows[key]
         color_entry = self.color_frame.grid_slaves(row=row)
         color = color_entry[~1].get()
@@ -230,7 +237,7 @@ class ColorEditFrame:
         color = ttk.Entry(self.color_frame, width=10, justify="center")
         color.insert(0, color_value)
         color.grid(row=row, column=1)
-        color.bind("<FocusOut>", lambda event: self.change_color(key=key))
+        color.bind("<FocusOut>", lambda event: self.update_color(key=key))
         radius = ttk.Spinbox(self.color_frame, from_=30, to=150, increment=10, width=6)
         radius.grid(row=row, column=2)
         radius.insert(0, radius_value)
@@ -244,7 +251,7 @@ class ColorEditFrame:
 
     def delete_row(self, key):
         if len(self.rows) <= 1:
-            messagebox.showwarning("禁止", "至少保留一个颜色！")
+            messagebox.showwarning("删除失败", "至少保留一个颜色！")
             return
         row = self.rows.pop(key)
         columns = self.color_frame.grid_slaves(row=row)
@@ -328,8 +335,8 @@ class InfoEditFrame:
 class GeneratorGUI:
     def __init__(self):
         self.gui = tk.Tk()
-        self.gui.title("Persona 5 预告信生成器 - Github @Horiz21")
-        self.gui.iconbitmap("./p5ccg.ico")
+        self.gui.title("Persona 5 预告信生成器")
+        self.gui.iconbitmap(resource_path("p5ccg.ico"))
 
         self.main_frame = tk.Frame(self.gui, padx=10, pady=10)
         self.main_frame.pack()
@@ -350,38 +357,51 @@ class GeneratorGUI:
         button_generate.pack(expand=True, fill="both")
 
     def generate(self):
-        colors, radii = self.frame_color_edit.get_info()
-        # width, height = self.frame_info_edit.get_info()
-        width, font_path, save_path = self.frame_info_edit.get_info()
+        try:
+            colors, radii = self.frame_color_edit.get_info()
+            # width, height = self.frame_info_edit.get_info()
+            width, font_path, save_path = self.frame_info_edit.get_info()
 
-        self.font_path = (
-            font_path
-            if os.path.isdir(font_path)
-            else os.path.join(
-                os.path.expanduser("~"),
-                "AppData/Local/Microsoft/Windows/Fonts",
+            self.font_path = (
+                font_path
+                if os.path.isdir(font_path)
+                else os.path.join(
+                    os.path.expanduser("~"),
+                    "AppData/Local/Microsoft/Windows/Fonts",
+                )
             )
-        )
-        self.save_path = (
-            save_path if os.path.isdir(save_path) else os.path.expanduser("~")
-        )
+            self.save_path = (
+                save_path if os.path.isdir(save_path) else os.path.expanduser("~")
+            )
 
-        card = CallingCard(
-            set_width=width,
-            padding=10,
-            background=CardBackground(radii=radii, colors=colors),
-            fonts_path=self.font_path,
-            paragraphs=self.frame_text_edit.get_info(),
-            smooth=False,
-        )
-        card.generate()
-        # self.show_image = ImageTk.PhotoImage(card.image)
-        # self.image_generate.config(image=self.show_image),
-        card.image.show()
-        card.image.save(self.save_path + "/p5cc_" + str(int(time())) + ".png")
+            card = CallingCard(
+                set_width=width,
+                padding=10,
+                background=CardBackground(radii=radii, colors=colors),
+                fonts_path=self.font_path,
+                paragraphs=self.frame_text_edit.get_info(),
+                smooth=False,
+            )
+            card.generate()
+            # self.show_image = ImageTk.PhotoImage(card.image)
+            # self.image_generate.config(image=self.show_image),
+            card.image.show()
+            card.image.save(self.save_path + "/p5cc_" + str(int(time())) + ".png")
+        except:
+            messagebox.showerror(
+                "错误",
+                """生成失败！请检查：
+1. 图像宽度是否是正整数。
+2. 所有颜色是否都具有正确格式的色值和半径。
+3. 所有段落是否都具有合法的字号值（整数）和对齐方式（left/center/right）。
+4. 字体目录是否存在；目录中是否仅包含字体文件，且至少有一项字体文件。
+5. 保存目录是否存在。
+
+建议检查和修改以上内容。如仍存在问题，请在 GitHub 仓库提出 Issue。""",
+            )
 
     def help(self):
-        help_message = """Persona 5 预告信生成器 (Alpha-20240621)
+        help_message = """Persona 5 预告信生成器 (Alpha-20240622)
 
 使用方法：
 1. 以十六进制色值输入背景颜色和同心圆宽度，可用于自定义背景。默认情况下，已经给出了原版 Persona 5 的预告信背景方案。
@@ -392,9 +412,13 @@ class GeneratorGUI:
 注意事项：
 1. 文本段落和各需保留至少一项。
 2. GUI 界面暂未支持更复杂的自定义功能。请通过源代码调整。
-3. 若存在问题，请在仓库中提出 issue 或邮件告知 (htl.me@outlook.com)。
+3. 若存在问题，请在仓库中提出 Issue 或邮件告知 (htl.me@outlook.com)。
+4. 若存在建议，请在仓库中提出 Discussion。
 
 感谢关注和使用该项目，GitHub 仓库地址：https://github.com/Horiz21/persona5-calling-card-generator
+
+GitHub @Horiz21
+2024/06/22
 """
         messagebox.showinfo(title="帮助信息", message=help_message)
 

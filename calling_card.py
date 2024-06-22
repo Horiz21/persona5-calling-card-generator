@@ -39,7 +39,7 @@ class CardBackground:
                 ),
                 fill=self.colors[~i % element_count],
             )
-            multipliers[multipliers.index(max(multipliers))] -= 1
+            multipliers[~multipliers[::-1].index(max(multipliers[::-1]))] -= 1
 
 
 class CallingCard:

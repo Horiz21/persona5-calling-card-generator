@@ -8,22 +8,20 @@
 
 - Generate Persona 5 style calling cards
 - Customize details such as background, paragraph and character/letter style
+- Easy-to-use GUI
 
 An example of generation is shown below:
 
 ![Calling Card](image/persona5_card.png)
 
-## Requirement
+## How to use
 
-To run the script, at least two libraries, NumPy and Pillow (PIL), need to be installed. These libraries are installed by default for users who configure their Python environments with Anaconda.
-
-## Usage
-
-For those familiar with Python or willing to read the code, all you need to do is read and modify the input parameter `card = CallingCard(...)` in the `main()` function of the `demo.py` file.
-
-For the rest, an easy-to-use GUI is under development and will probably be presented as a web page. This may take some time due to the author's limited energy and knowledge and experience in web development.
+- For users unfamiliar with Python, a packaged `.exe` file is posted on the release page of this repository, which can be downloaded and used. Currently, only the Windows version is available.
+- For those who are familiar with Python or are willing to read the code, all you need to do is read and modify the input parameter `card = CallingCard(...)' in the `main()` function of the `demo.py` file. ` input parameter in the `main()` function of the `demo.py` file. Note: At least one library, Pillow (PIL), needs to be installed to run this script.
 
 ## Parameters
+
+For GUI users, help documentation is available in the lower left corner of the software interface (the '?' button). For interested developers and advanced feature users, this section shows more detailed instructions.
 
 ### `CallingCard`
 
@@ -89,8 +87,9 @@ Required to be passed in the constructor of the important `CharacterStyle` class
 - [x] "L" color mode in `PIL`
 - [x] Image smoothing options\
 - [x] Demo
-- [ ] More customizable details
-- [ ] GUI
+- [x] More customizable details
+- [x] GUI
+- [ ] More beautiful GUI
 
 ## License
 
