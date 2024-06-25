@@ -1,0 +1,111 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.4\n"
+
+msgid "p5ccg"
+msgstr "Persona 5 Calling Card Generator"
+
+msgid "base_info"
+msgstr "Basic Information"
+
+msgid "width"
+msgstr "Image Width"
+
+msgid "font_path"
+msgstr "Font Directory"
+
+msgid "save_path"
+msgstr "Save Directory"
+
+msgid "choose"
+msgstr "Choose"
+
+msgid "text"
+msgstr "Text"
+
+msgid "content"
+msgstr "Content"
+
+msgid "font_size"
+msgstr "Font Size"
+
+msgid "align"
+msgstr "Alignment"
+
+msgid "delete"
+msgstr "Delete"
+
+msgid "more_action"
+msgstr "More Actions"
+
+msgid "color"
+msgstr "Color"
+
+msgid "preview"
+msgstr "Preview"
+
+msgid "hex"
+msgstr "Hex"
+
+msgid "radius"
+msgstr "Radius"
+
+msgid "warning"
+msgstr "Warning"
+
+msgid "error"
+msgstr "Error"
+
+msgid "one_edit"
+msgstr "Please complete one edit at a time!"
+
+msgid "one_text"
+msgstr "Please keep at least one text paragraph!"
+
+msgid "one_color"
+msgstr "Please keep at least one background color!"
+
+msgid "generate"
+msgstr "Generate"
+
+msgid "generate_fail_message"
+msgstr ""
+"Generation failed! Please check:\n"
+"1. Whether the image width is a positive integer\n"
+"2. Whether all colors have the correct format for hex value and radius\n"
+"3. Whether all text has valid font size values and alignment\n"
+"4. Whether the font directory exists and is accessible (P5CCG may not be able to access the system font directory)\n"
+"5. Whether the font directory contains at least one font file, and all files in the directory are font files\n"
+"6. Whether the save directory exists"
+
+msgid "help"
+msgstr "Help"
+
+msgid "help_message"
+msgstr ""
+"Usage Instructions:\n"
+"1. Enter the background color and ring width in hexadecimal color value to customize the background. By default, the original Persona 5 calling card background scheme is provided.\n"
+"2. Enter the text in paragraphs. Each paragraph can be adjusted independently for font size and alignment.\n"
+"3. For Windows users, the font path defaults to the system font path. This path contains many incomplete font libraries and special fonts, which may result in poor generation effects. It is recommended to choose a 'Font Directory' yourself to specify special fonts.\n"
+"4. For Windows users, the default save location is in the user directory, with the file name p5cc_timestamp.png. It is recommended to choose a 'Save Directory' yourself.\n"
+"\n"
+"Notes:\n"
+"1. At least one text paragraph and one color item must be retained.\n"
+"2. The GUI interface currently does not support more complex customization features. Please adjust through the source code.\n"
+"3. For the system font directory (e.g., C:\\Windows\\Fonts), P5CCG may not be able to read it due to system permissions, system version, or other reasons. It is strongly recommended to create an additional directory to store the candidate generation fonts.\n"
+"4. If you encounter any issues, please raise an Issue in the repository or email (htl.me@outlook.com).\n"
+"5. If you have any suggestions, please start a Discussion in the repository.\n"
+"\n"
+"Thank you for your attention and use of this project. GitHub repository: https://github.com/Horiz21/persona5-calling-card-generator\n"
+"\n"
+"GitHub @Horiz21\n"
+"2024/06/22"

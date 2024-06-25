@@ -7,6 +7,16 @@ from character import *
 from time import time
 import os
 import sys
+import gettext
+
+SUPPORTED_LANGS = ["zh_CN", "en_US"]
+
+user_lang = os.environ.get("LANG", "").split(".")[0]
+
+if user_lang in SUPPORTED_LANGS:
+    _ = gettext.translation("gui", "locale", [user_lang]).gettext
+else:
+    _ = gettext.translation("gui", "locale", ["en_US"], fallback=True).gettext
 
 
 def resource_path(relative_path):
@@ -55,12 +65,16 @@ class AdvancedTextEditToplevel(tk.Toplevel):
         self.button_frame.grid(row=3, column=0, columnspan=2)
 
         self.delete_button = ttk.Button(
-            self.button_frame, text="删除", command=self.delete_row
+            self.button_frame,
+            text="删除",
+            command=self.delete_row,
         )
         self.delete_button.grid(row=0, column=0)
 
         self.save_button = ttk.Button(
-            self.button_frame, text="保存", command=self.save_changes
+            self.button_frame,
+            text="保存",
+            command=self.save_changes,
         )
         self.save_button.grid(row=0, column=1, padx=10)
 
@@ -81,7 +95,7 @@ class AdvancedTextEditToplevel(tk.Toplevel):
 
 class TextEditFrame:
     def __init__(self, root):
-        self.master = ttk.LabelFrame(root, text="文本", padding=5)
+        self.master = ttk.LabelFrame(root, text=_("text"), padding=5)
         self.master.pack(padx=10, pady=10)
 
         self.para_frame = ttk.Frame(self.master)
@@ -90,10 +104,10 @@ class TextEditFrame:
         self.add_button = ttk.Button(self.master, text="+", command=self.add_row)
         self.add_button.grid(row=1, column=0)
 
-        ttk.Label(self.para_frame, text="文本").grid(row=0, column=0)
-        ttk.Label(self.para_frame, text="字号").grid(row=0, column=1)
-        ttk.Label(self.para_frame, text="对齐").grid(row=0, column=2)
-        ttk.Label(self.para_frame, text="更多操作").grid(row=0, column=3)
+        ttk.Label(self.para_frame, text=_("content")).grid(row=0, column=0)
+        ttk.Label(self.para_frame, text=_("font_size")).grid(row=0, column=1)
+        ttk.Label(self.para_frame, text=_("align")).grid(row=0, column=2)
+        ttk.Label(self.para_frame, text=_("delete")).grid(row=0, column=3)
 
         self.paragraphs = {}
         self.rows = {}
@@ -145,7 +159,7 @@ class TextEditFrame:
 
     def edit_row(self, key):
         if self.toplevel:
-            messagebox.showwarning("禁止", "一次请只完成一个编辑！")
+            messagebox.showwarning(_("warning"), _("one_edit"))
             return
         self.toplevel = True
         row = self.rows[key]
@@ -175,7 +189,7 @@ class TextEditFrame:
 
     def delete_row(self, key):
         if len(self.rows) <= 1:
-            messagebox.showwarning("删除失败", "至少保留一个段落！")
+            messagebox.showwarning(_("error"), _("one_text"))
             return
         self.paragraphs.pop(key)
         row = self.rows.pop(key)
@@ -189,7 +203,7 @@ class TextEditFrame:
 
 class ColorEditFrame:
     def __init__(self, root):
-        self.master = ttk.LabelFrame(root, text="颜色", padding=5)
+        self.master = ttk.LabelFrame(root, text=_("color"), padding=5)
         self.master.pack(padx=10, pady=10)
 
         self.color_frame = ttk.Frame(self.master)
@@ -197,10 +211,10 @@ class ColorEditFrame:
 
         ttk.Button(self.master, text="+", command=self.add_row).grid(row=1, column=0)
 
-        ttk.Label(self.color_frame, text="预览").grid(row=0, column=0)
-        ttk.Label(self.color_frame, text="颜色").grid(row=0, column=1)
-        ttk.Label(self.color_frame, text="半径").grid(row=0, column=2)
-        ttk.Label(self.color_frame, text="删除").grid(row=0, column=3)
+        ttk.Label(self.color_frame, text=_("preview")).grid(row=0, column=0)
+        ttk.Label(self.color_frame, text=_("hex")).grid(row=0, column=1)
+        ttk.Label(self.color_frame, text=_("radius")).grid(row=0, column=2)
+        ttk.Label(self.color_frame, text=_("delete")).grid(row=0, column=3)
 
         self.rows = {}
 
@@ -251,7 +265,7 @@ class ColorEditFrame:
 
     def delete_row(self, key):
         if len(self.rows) <= 1:
-            messagebox.showwarning("删除失败", "至少保留一个颜色！")
+            messagebox.showwarning(_("error"), _("one_color"))
             return
         row = self.rows.pop(key)
         columns = self.color_frame.grid_slaves(row=row)
@@ -271,10 +285,10 @@ class ColorEditFrame:
 class InfoEditFrame:
     def __init__(self, root):
         # self.master = ttk.LabelFrame(root, text="尺寸与平滑", padding=5)
-        self.master = ttk.LabelFrame(root, text="基本信息", padding=5)
+        self.master = ttk.LabelFrame(root, text=_("base_info"), padding=5)
         self.master.pack(padx=10, pady=10)
 
-        label_width = tk.Label(self.master, text="图像宽度")
+        label_width = tk.Label(self.master, text=_("width"))
         label_width.grid(row=0, column=0)
         self.entry_width = ttk.Entry(self.master)
         self.entry_width.insert(0, 1600)
@@ -287,21 +301,27 @@ class InfoEditFrame:
         # self.entry_height.config(state="readonly")
         # self.entry_height.grid(row=1, column=1)
 
-        label_font_path = ttk.Label(self.master, text="字体目录")
+        label_font_path = ttk.Label(self.master, text=_("font_path"))
         label_font_path.grid(row=1, column=0)
         self.entry_font_path = ttk.Entry(self.master)
         self.entry_font_path.grid(row=1, column=1)
         font_path_button = ttk.Button(
-            self.master, text="选择", width=6, command=lambda: self.path_select("font")
+            self.master,
+            text=_("choose"),
+            width=6,
+            command=lambda: self.path_select("font"),
         )
         font_path_button.grid(row=1, column=2)
 
-        label_save_path = ttk.Label(self.master, text="保存目录")
+        label_save_path = ttk.Label(self.master, text=_("save_path"))
         label_save_path.grid(row=2, column=0)
         self.entry_save_path = ttk.Entry(self.master)
         self.entry_save_path.grid(row=2, column=1)
         save_path_button = ttk.Button(
-            self.master, text="选择", width=6, command=lambda: self.path_select("save")
+            self.master,
+            text=_("choose"),
+            width=6,
+            command=lambda: self.path_select("save"),
         )
         save_path_button.grid(row=2, column=2)
 
@@ -335,7 +355,7 @@ class InfoEditFrame:
 class GeneratorGUI:
     def __init__(self):
         self.gui = tk.Tk()
-        self.gui.title("Persona 5 预告信生成器")
+        self.gui.title(_("p5ccg"))
         self.gui.iconbitmap(resource_path("p5ccg.ico"))
 
         self.main_frame = tk.Frame(self.gui, padx=10, pady=10)
@@ -347,11 +367,18 @@ class GeneratorGUI:
         frame_button = tk.Frame(self.main_frame)
         frame_button.pack(side="bottom", expand=True, fill="both", padx=20)
 
-        button_help = ttk.Button(frame_button, text="?", width=2, command=self.help)
+        button_help = ttk.Button(
+            frame_button,
+            text="?",
+            width=2,
+            command=lambda: messagebox.showinfo(
+                title=_("help"), message=_("help_message")
+            ),
+        )
         button_help.pack(side="left")
         button_generate = ttk.Button(
             frame_button,
-            text="生成",
+            text=_("generate"),
             command=self.generate,
         )
         button_generate.pack(expand=True, fill="both")
@@ -372,10 +399,7 @@ class GeneratorGUI:
             )
 
             if not os.path.isdir(self.font_path):
-                messagebox.showerror(
-                    "字体目录错误",
-                    "P5CCG 无法找到字体，请选择包含且仅包含字体文件的非系统文件夹。",
-                )
+                messagebox.showerror(_("error"), _("no_fonts"))
                 return
 
             self.save_path = (
@@ -396,44 +420,10 @@ class GeneratorGUI:
             card.image.show()
             card.image.save(self.save_path + "/p5cc_" + str(int(time())) + ".png")
         except:
-            messagebox.showerror(
-                "错误",
-                """生成失败！请检查：
-1. 图像宽度是否是正整数。
-2. 所有颜色是否都具有正确格式的色值和半径。
-3. 所有段落是否都具有合法的字号值（整数）和对齐方式（left/center/right）。
-4. 字体目录是否存在；目录中是否仅包含字体文件，且至少有一项字体文件；目录是否可访问。
-5. 保存目录是否存在。
-
-建议检查和修改以上内容。如仍存在问题，请在 GitHub 仓库提出 Issue。""",
-            )
-
-    def help(self):
-        help_message = """Persona 5 预告信生成器 (Alpha-20240622)
-
-使用方法：
-1. 以十六进制色值输入背景颜色和同心圆宽度，可用于自定义背景。默认情况下，已经给出了原版 Persona 5 的预告信背景方案。
-2. 以段落为单位输入文本。各段落可独立调整字号、对齐方式。
-3. 对于 Windows 用户，字体路径默认为系统字体路径。该路径存在许多字库不全的字体和特殊字体，可能会造成较差的生成效果。推荐自行选择“字体目录”，以指定特殊字体。
-4. 对于 Windows 用户，将默认保存在用户目录下，文件名为 p5cc_时间.png。推荐自行选择“保存目录”。
-
-注意事项：
-1. 文本段落和各需保留至少一项。
-2. GUI 界面暂未支持更复杂的自定义功能。请通过源代码调整。
-3. 对于系统字体目录（例如：C:\Windows\Fonts），P5CCG 可能由于系统权限、系统版本或其他原因无法读取。强烈建议额外创建一个目录，用于存放候选生成的字体。
-4. 若存在问题，请在仓库中提出 Issue 或邮件告知 (htl.me@outlook.com)。
-5. 若存在建议，请在仓库中提出 Discussion。
-
-感谢关注和使用该项目，GitHub 仓库地址：https://github.com/Horiz21/persona5-calling-card-generator
-
-GitHub @Horiz21
-2024/06/22
-"""
-        messagebox.showinfo(title="帮助信息", message=help_message)
+            messagebox.showerror(_("error"), _("generate_fail_message"))
 
     def mainloop(self):
         self.gui.mainloop()
-
 
 def main():
     gui = GeneratorGUI()
