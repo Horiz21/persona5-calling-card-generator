@@ -43,7 +43,7 @@ Persona 5 预告信生成器（Persona 5 Calling Card Generator, P5CCG）可以�
 - `background`: `CardBackground` 类的实例。见 [后文](#cardbackground-类)。
 - `paragraphs`: `Paragraph` 实例的列表。见 [后文](#paragarph-类)。
 - `fonts_path`: 字体文件夹，存放 `.ttf`/`.otf` 等格式的字体文件。对于 Windows 用户，脚本默认指向用户字体文件夹。注意：**由于①系统的字体文件夹中存在一些特殊字体；②随机抽选字体过程中可能遇到字库不全的字体文件，可能致使显示错误，更好的做法是使用另一个文件夹来存放所有想要使用的字体**。
-- `smooth`: 是否进行平滑。由 PIL 生成的图像较为锐利，如果希望较为平滑的图像，可以将该值设置为 `True`，否则默认将不进行平滑操作。
+- `antialias`: 整型，用于抗锯齿。P5CCG 将首先生成长、宽各 `antialias` 倍的图像，然后再使用 Lanczos 重采样算法缩小回目标尺寸，得到较为平滑的图像。该值为 `1` 时，抗锯齿关闭。
 
 ### `CardBackground` 类
 

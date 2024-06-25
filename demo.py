@@ -40,7 +40,7 @@ def main():
             ),
         ],
         fonts_path=os.path.join(os.path.dirname(__file__), "fonts"),
-        smooth=False,
+        antialias=2,
     )
     card.generate()
     card.save("", "p5card.png")

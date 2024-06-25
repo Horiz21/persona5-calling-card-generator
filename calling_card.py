@@ -50,27 +50,34 @@ class CallingCard:
         background: CardBackground,
         paragraphs: List[Paragraph],
         fonts_path: str,
-        smooth: bool = False,
+        antialias: int = 2,
     ):
-        self.image_width = set_width
+        self.antialias = antialias
+        self.set_width = set_width
+        self.image_width = set_width * antialias
 
         if isinstance(padding, int):
-            self.padding = [padding] * 4
+            padding = [padding] * 4
         elif len(padding) == 1:
-            self.padding = padding * 4
+            padding = padding * 4
         elif len(padding) == 2:
-            self.padding = padding * 2
+            padding = padding * 2
         elif len(padding) == 4:
-            self.padding = padding
+            padding = padding
+        self.padding = [p * antialias for p in padding]
 
-        self.content_max_width = set_width - self.padding[0] - self.padding[2]
+        self.content_max_width = self.image_width - self.padding[0] - self.padding[2]
 
         self.background = background
+        self.background.radii = [radius * antialias for radius in self.background.radii]
+
         self.paragraphs = paragraphs
+        for i in range(len(self.paragraphs)):
+            self.paragraphs[i].style.shift *= antialias
+            self.paragraphs[i].style.float *= antialias
+            self.paragraphs[i].style.character_style.size *= antialias
 
         self.fonts_path = fonts_path
-
-        self.blur_radius = 1 if smooth else 0
 
     def generate(self):
         for paragraph in self.paragraphs:
@@ -100,13 +107,11 @@ class CallingCard:
                 total_mask.paste(mask, (posx, nowy))
                 nowy += image.height
 
-        self.image = self.background.image.filter(
-            ImageFilter.GaussianBlur(self.blur_radius)
-        )
-        self.image.paste(
-            total_image,
-            (self.padding[0], self.padding[1]),
-            total_mask.filter(ImageFilter.GaussianBlur(self.blur_radius)),
+        image = self.background.image
+        image.paste(total_image, (self.padding[0], self.padding[1]), total_mask)
+        self.image = image.resize(
+            (self.set_width, self.image_height // self.antialias),
+            resample=Image.LANCZOS,
         )
 
     def save(
