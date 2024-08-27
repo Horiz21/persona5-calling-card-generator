@@ -1,14 +1,18 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+Python/__pycache__/
 *.py[cod]
 *$py.class
 
 # local directories
-fonts/
-working/
+Assets/CustomFonts/
+Assets/Working/
 
 # pyinstaller
-build/
-dist/
-*.exe
+Python/build/
+Python/dist/
 *.spec
+
+# csharp
+bin/
+obj/
+.idea/

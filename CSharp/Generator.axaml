@@ -1,0 +1,150 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:local="clr-namespace:P5CCG"
+        mc:Ignorable="d"
+        x:Class="P5CCG.Generator"
+        Title="Persona 5 预告信生成器"
+		Background="Black"
+		Width="960" Height="540"
+		CanResize="False"
+		Icon="../Assets/p5ccg.ico">
+	<Grid>
+		<Image Grid.RowSpan="2"
+			   HorizontalAlignment="Right"
+			   VerticalAlignment="Bottom"
+			   Height="250"
+			   Opacity="0.5"
+			   Source="../Assets/Images/star_background.png"/>
+		<!--数据编辑与展示区域-->
+		<Grid ColumnDefinitions="400 10 500" Margin="20 15">
+			<!--左列-->
+			<StackPanel Grid.Column="0">
+				<!--基本-->
+				<Image Source="../Assets/Images/caption_basic.png" Height="40" HorizontalAlignment="Left"/>
+				<Grid RowDefinitions="32 32" ColumnDefinitions="75 275 50">
+					<Label Grid.Row="0" Grid.Column="0" Content="图像比例" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" ColumnDefinitions="* * * *">
+						<local:Persona5StyledRadioButton x:Name="Ratio01"
+												   Grid.Column="0" GroupName="ImageRatio"
+												   ControlTextContent="√2:1"
+												   RadioButtonIsChecked="True"
+												   ToolTip.Tip="√2:1 是常见纸张的比例，适用于包括 A4、A5、B5 在内的标准尺寸的纸张"/>
+						<local:Persona5StyledRadioButton x:Name="Ratio02"
+												   Grid.Column="1" GroupName="ImageRatio"
+												   ControlTextContent="16:9"
+												   ToolTip.Tip="16:9 是当今标准宽屏显示器的比例，也是如今手机、数码相机摄影常用的比例之一"/>
+						<local:Persona5StyledRadioButton x:Name="Ratio03"
+												   Grid.Column="2" GroupName="ImageRatio"
+												   ControlTextContent="4:3"
+												   ToolTip.Tip="4:3 是过去显示器的常见比例，也是如今手机、数码相机摄影常用的比例之一"/>
+						<local:Persona5StyledRadioButton x:Name="Ratio04"
+												   Grid.Column="3" GroupName="ImageRatio"
+												   ControlTextContent="3:2"
+												   ToolTip.Tip="3:2 是 35 毫米胶片用于静物拍摄的比例，也是常见的照片的印刷比例，适用于包括 5 吋、6 吋在内的照片印制"/>
+					</Grid>
+					<Label Grid.Row="1" 
+						   Grid.Column="0" 
+						   Content="字体目录" 
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+					<local:Persona5StyledTextBox x:Name="FontFolderPath"
+					                             Grid.Row="1" Grid.Column="1"/>
+					<local:Persona5StyleButton x:Name="FontFolderButton"
+					                           Grid.Row="1" Grid.Column="2"
+					                           ControlTextContent="选择"
+					                           IsTextMode="True"
+					                           ToolTip.Tip="选择一个包含 TrueType (.ttf)、OpenType (.otf) 格式字体的目录。若留空，将尝试访问 Windows 系统的用户本地字体目录。"/>
+				</Grid>
+				<!--色彩-->
+				<Grid ColumnDefinitions="* 40">
+					<Image Source="../Assets/Images/caption_color.png" Height="40" HorizontalAlignment="Left"/>
+					<local:Persona5StyleButton x:Name="ColorButton"
+					                           Grid.Column="1"
+					                           DefaultImage="../Assets/Images/button_add_normal.png"
+					                           HoverImage="../Assets/Images/button_add_hover.png"
+					                           PressedImage="../Assets/Images/button_add_pressed.png"/>
+				</Grid>
+				<ScrollViewer Height="108">
+					<StackPanel x:Name="ColorStackPanel">
+						<Grid ColumnDefinitions="75 * 182 * 85 * 40" Height="28">
+							<Label Grid.Column="0" Content="颜色预览" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+							<Label Grid.Column="2" Content="色值" 
+							       HorizontalAlignment="Center"
+							       VerticalAlignment="Center"
+								   ToolTip.Tip="使用 HEX 代码的形式表示，例如 #FF0000 表示红色"/>
+							<Label Grid.Column="4" Content="半径" 
+								   HorizontalAlignment="Center" VerticalAlignment="Center"
+								   ToolTip.Tip="背景同心圆单个圆环的像素数，例如 “红色:黑色 = 260:325” 是一个接近原作效果的数值"/>
+							<Label Grid.Column="6" Content="移除" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						</Grid>
+					</StackPanel>
+				</ScrollViewer>
+
+				<!--内容-->
+				<Grid ColumnDefinitions="* 40">
+					<Image Source="../Assets/Images/caption_content.png" Height="40" HorizontalAlignment="Left"/>
+					<local:Persona5StyleButton x:Name="ContectButton"
+										Grid.Column="1"
+										DefaultImage="../Assets/Images/button_add_normal.png"
+										HoverImage="../Assets/Images/button_add_hover.png"
+										PressedImage="../Assets/Images/button_add_pressed.png"/>
+				</Grid>
+				<ScrollViewer Height="185">
+					<StackPanel x:Name="ContentStackPanel">
+						<Grid ColumnDefinitions="75 167 * 50 * 50 * 40" Height="28">
+							<Label Grid.Column="0" Content="段落文本" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+							<Label Grid.Column="3" Content="字号" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+							<Label Grid.Column="5"
+								   Content="对齐"
+								   HorizontalAlignment="Center"
+								   VerticalAlignment="Center"/>
+							<Label Grid.Column="7"
+								   Content="移除"
+								   HorizontalAlignment="Center"
+								   VerticalAlignment="Center"/>
+						</Grid>
+					</StackPanel>
+				</ScrollViewer>
+			</StackPanel>
+			<!--右列-->
+			<Grid Grid.Column="2"
+				  RowDefinitions="370 *">
+				<Border BorderBrush="White"
+						BorderThickness="2"
+						Margin="5"
+						Width="480"
+						VerticalAlignment="Center"
+						Background="Black"
+						HorizontalAlignment="Center">
+					<Image x:Name="GeneratedImage"
+						   Source="../Assets/Images/default_dark.png"
+						   Stretch="Uniform"/>
+				</Border>
+				<StackPanel Grid.Row="1"
+							Orientation="Horizontal"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							Height="72">
+					<local:Persona5StyleButton x:Name="GenerateButton"
+										DefaultImage="../Assets/Images/button_generate_normal.png"
+										HoverImage="../Assets/Images/button_generate_hover.png"
+										PressedImage="../Assets/Images/button_generate_pressed.png"/>
+					<local:Persona5StyleButton x:Name="ExportButton"
+										DefaultImage="../Assets/Images/button_export_normal.png"
+										HoverImage="../Assets/Images/button_export_hover.png"
+										PressedImage="../Assets/Images/button_export_pressed.png"/>
+				</StackPanel>
+			</Grid>
+		</Grid>
+		<local:Persona5StyleButton DefaultImage="../Assets/Images/horiz_project_normal.png"
+							HoverImage="../Assets/Images/horiz_project_hover.png"
+							HorizontalAlignment="Left"
+							VerticalAlignment="Bottom"
+							Grid.Row="1"
+							Margin="20,15"
+							Height="18"
+							Width="180"/>
+	</Grid>
+</Window>

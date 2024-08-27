@@ -1,0 +1,18 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:local="clr-namespace:P5CCG"
+             x:Class="P5CCG.Persona5StyledToggleButton"
+             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+             HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+	<Grid>
+		<local:Persona5QuadrilateralBackground x:Name="BackgroundPath"/>
+		<Image x:Name="ControlImage"
+			   Source="{Binding ControlImageSource01, RelativeSource={RelativeSource AncestorType={x:Type local:Persona5StyledToggleButton}}}"
+			   Stretch="UniformToFill"/>
+		<Label x:Name="ControlText"
+			   Content="{Binding ControlTextContent01, RelativeSource={RelativeSource AncestorType={x:Type local:Persona5StyledToggleButton}}}"
+			   HorizontalContentAlignment="Center"
+			   VerticalContentAlignment="Center"
+			   />
+	</Grid>
+</UserControl>

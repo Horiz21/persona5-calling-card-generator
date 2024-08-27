@@ -1,0 +1,14 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="P5CCG.App"
+             RequestedThemeVariant="Dark">
+
+	<Application.Styles>
+		<SimpleTheme />
+		<Style Selector="Window">
+			<Setter Property="FontFamily" Value="../Assets/Fonts/SourceHanSansSC-Regular.otf#Source Han Sans SC"/>
+			<Setter Property="FontSize" Value="14"/>
+		</Style>
+	</Application.Styles>
+
+</Application>
