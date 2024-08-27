@@ -4,6 +4,7 @@ from math import ceil, sqrt
 from PIL import Image, ImageDraw, ImageFilter
 from paragraph import Paragraph
 from font_manager import FONTS_PATH
+import io
 
 
 class CardBackground:
@@ -46,6 +47,7 @@ class CallingCard:
     def __init__(
         self,
         set_width: int,
+        set_height: int,
         padding: int | List[int],
         background: CardBackground,
         paragraphs: List[Paragraph],
@@ -54,7 +56,9 @@ class CallingCard:
     ):
         self.antialias = antialias
         self.set_width = set_width
+        self.set_height = set_height
         self.image_width = set_width * antialias
+        self.image_height = set_height * antialias
 
         if isinstance(padding, int):
             padding = [padding] * 4
@@ -86,7 +90,7 @@ class CallingCard:
                 fonts_path=self.fonts_path,
             )
         content_height = sum(paragraph.height for paragraph in self.paragraphs)
-        self.image_height = content_height + self.padding[1] + self.padding[3]
+        # self.image_height = content_height + self.padding[1] + self.padding[3]  # deprecated
         self.background.generate(self.image_width, self.image_height)
 
         total_image = Image.new("L", (self.content_max_width, content_height), 0)
@@ -120,3 +124,8 @@ class CallingCard:
         name: str = "persona5_card.png",
     ):
         self.image.save(os.path.join(path, name))
+
+    def tobyte(self):
+        img_byte_arr = io.BytesIO()
+        self.image.save(img_byte_arr, format="PNG")
+        return img_byte_arr.getvalue()

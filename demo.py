@@ -9,6 +9,7 @@ from default_styles import *
 def main():
     card = CallingCard(
         set_width=1600,
+        set_height=900,
         padding=[120, 80, 120, 40],
         background=PERSONA5_BACKGROUND,
         paragraphs=[
