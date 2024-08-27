@@ -6,13 +6,16 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationIcon>Assets\p5ccg.ico</ApplicationIcon>
+    <Version>0.2.0</Version>
+    <Title>Persona 5 预告信生成器</Title>
+    <Authors>Horiz21</Authors>
+    <Company>Horiz21</Company>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.1.0" />
     <PackageReference Include="Avalonia.Desktop" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Svg" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Svg.Skia" Version="11.1.0" />
     <PackageReference Include="Avalonia.Themes.Simple" Version="11.1.0" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
@@ -97,9 +100,7 @@
   
   <ItemGroup>
     <None Remove="Python\"/>
-    <None Remove="Assets\CustomFonts\"/>
     <None Remove="Assets\Working\"/>
-    <None Remove="Python\dist\" />
   </ItemGroup>
 
   <ItemGroup>

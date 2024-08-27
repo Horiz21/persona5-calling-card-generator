@@ -29,6 +29,9 @@ public partial class Generator : Window
         GenerateButton.Click += GenerateCallingCardAsync;
         ExportButton.Click += ExportCallingCardAsync;
         FontFolderButton.Click += SelectFontFolder;
+        AboutButton.Click += (_, _) =>
+            new Persona5StyledDialog(this, "关于",
+                "当前版本：20240827（测试版）\n开源地址：https://github.com/Horiz21/persona5-calling-card-generator").Show();
 
         // Default Values
         AddRowForColor("#FF0000", 260);
@@ -180,6 +183,59 @@ public partial class Generator : Window
     private void AddRowForColor(object? sender, EventArgs e) => AddRowForColor("#FF0000", 260);
     private void AddRowForContent(object? sender, EventArgs e) => AddRowForContent();
 
+    private async void GenerateCallingCardAsync(object? sender, EventArgs e)
+    {
+        GeneratedImage.Source = new Bitmap(AssetLoader.Open(new Uri("avares://P5CCG/Assets/Images/default_light.png")));
+
+        var jsonMap = new JObject
+        {
+            ["ratio"] = GetSelectedRatio(),
+            ["font_path"] = FontFolderPath.Text,
+            ["colors"] = GetColorsAndRadii(),
+            ["paragraphs"] = GetContents()
+        };
+
+        if (!jsonMap["colors"]!.Any())
+        {
+            new Persona5StyledDialog(this, "无法生成", "含有一个或多个非法的颜色-半径值！").Show();
+            return;
+        }
+
+        var jsonString = JsonConvert.SerializeObject(jsonMap);
+        var escapedArgs = $"--data \"{Escape(jsonString)}\"";
+
+        using var process = new Process();
+        process.StartInfo = new ProcessStartInfo
+        {
+            FileName = "Assets/Binary/cli.exe",
+            Arguments = escapedArgs,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
+        };
+
+        process.Start();
+        try
+        {
+            using var outputStream = new MemoryStream();
+            await process.StandardOutput.BaseStream.CopyToAsync(outputStream);
+            await process.WaitForExitAsync();
+
+            outputStream.Position = 0;
+            GeneratedImage.Source = new Bitmap(outputStream);
+            _generatedCallingCardStream = new MemoryStream(outputStream.ToArray());
+        }
+        catch
+        {
+            Debug.WriteLine(escapedArgs);
+            new Persona5StyledDialog(this, "生成失败",
+                    "P5CCG 遇到问题，无法生成，请检查：\n1. 字体目录是否存在且可访问（由于系统限制，P5CCG 可能无法访问系统字体目录，建议自建字体目录）\n2. 字体目录中是否有且仅有 .ttf 和 .otf 格式字体文件")
+                .Show();
+            new Persona5StyledDialog(this, "生成参数", escapedArgs).Show();
+        }
+    }
+
     private async void ExportCallingCardAsync(object? sender, EventArgs e)
     {
         if (_generatedCallingCardStream == null || _generatedCallingCardStream.Length == 0)
@@ -233,63 +289,6 @@ public partial class Generator : Window
         }
     }
 
-    private async void GenerateCallingCardAsync(object? sender, EventArgs e)
-    {
-        GeneratedImage.Source = new Bitmap(AssetLoader.Open(new Uri("avares://P5CCG/Assets/Images/default_light.png")));
-
-        var jsonMap = new JObject
-        {
-            ["ratio"] = GetSelectedRatio(),
-            ["font_path"] = FontFolderPath.Text,
-            ["colors"] = GetColorsAndRadii(),
-            ["paragraphs"] = GetContents()
-        };
-
-        // if (jsonMap["font_path"]!.ToString() == string.Empty)
-        // {
-        //     new Persona5StyledDialog(this, "找不到字体目录", "请输入正确的字体目录！").Show();
-        //     return;
-        // }
-        
-        if (!jsonMap["colors"]!.Any())
-        {
-            new Persona5StyledDialog(this, "无法生成", "含有一个或多个非法的颜色-半径值！").Show();
-            return;
-        }
-
-        var jsonString = JsonConvert.SerializeObject(jsonMap);
-        var escapedArgs = $"--data \"{Escape(jsonString)}\"";
-
-        using var process = new Process();
-        process.StartInfo = new ProcessStartInfo
-        {
-            FileName = "Assets/Binary/cli.exe",
-            Arguments = escapedArgs,
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = true
-        };
-
-        process.Start();
-        try
-        {
-            using var outputStream = new MemoryStream();
-            await process.StandardOutput.BaseStream.CopyToAsync(outputStream);
-            await process.WaitForExitAsync();
-
-            outputStream.Position = 0;
-            GeneratedImage.Source = new Bitmap(outputStream);
-            _generatedCallingCardStream = new MemoryStream(outputStream.ToArray());
-        }
-        catch
-        {
-            new Persona5StyledDialog(this, "生成失败",
-                "P5CCG 遇到问题，无法生成，请检查：\n1. 字体目录是否存在且可访问（由于系统限制，P5CCG 可能无法访问系统字体目录，建议自建字体目录）\n2. 字体目录中是否有且仅有 .ttf 和 .otf 格式字体文件").Show();
-            Debug.WriteLine(escapedArgs);
-        }
-    }
-
     private string GetSelectedRatio()
     {
         if ((bool)Ratio01.MainRadioButton.IsChecked!) return "sqrt2:1";
@@ -306,8 +305,9 @@ public partial class Generator : Window
             if (child is not Grid grid) continue;
             var flagIllegal = (grid.Children[0] as Persona5StyledTextBox)!.ControlTextBox.Text != string.Empty;
             var hex = (grid.Children[1] as Persona5StyledTextBox)!.ControlTextBox.Text;
-            var isValidInteger = int.TryParse((grid.Children[2] as Persona5StyledTextBox)!.ControlTextBox.Text, out var radius);
-            if (flagIllegal || !isValidInteger || radius<=0) return [];
+            var isValidInteger = int.TryParse((grid.Children[2] as Persona5StyledTextBox)!.ControlTextBox.Text,
+                out var radius);
+            if (flagIllegal || !isValidInteger || radius <= 0) return [];
             colorsAndRadii.Add(new JObject
             {
                 { "hex", hex },
@@ -363,9 +363,6 @@ public partial class Generator : Window
                 case '\'':
                     sb.Append(@"\'");
                     break;
-                case '\\':
-                    sb.Append(@"\\");
-                    break;
                 case '\n':
                     sb.Append(@"\n");
                     break;
@@ -374,9 +371,6 @@ public partial class Generator : Window
                     break;
                 case '\t':
                     sb.Append(@"\t");
-                    break;
-                case ' ':
-                    sb.Append(@"\ ");
                     break;
                 default:
                     sb.Append(c);
