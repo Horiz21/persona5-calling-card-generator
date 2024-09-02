@@ -25,17 +25,17 @@ public partial class Generator : Window
 
         // Basic Button Click Events
         ColorButton.Click += AddRowForColor;
-        ContectButton.Click += AddRowForContent;
+        ContentButton.Click += AddRowForContent;
         GenerateButton.Click += GenerateCallingCardAsync;
         ExportButton.Click += ExportCallingCardAsync;
         FontFolderButton.Click += SelectFontFolder;
         AboutButton.Click += (_, _) =>
             new Persona5StyledDialog(this, "关于",
-                "当前版本：20240827（测试版）\n开源地址：https://github.com/Horiz21/persona5-calling-card-generator").Show();
+                $@"当前版本：{App.Version}\n开源地址：{App.Link}").Show();
 
         // Default Values
         AddRowForColor("#FF0000", 260);
-        AddRowForColor("#000000", 325);
+        AddRowForColor("#000000", 320);
         AddRowForContent();
     }
 
@@ -80,7 +80,7 @@ public partial class Generator : Window
         var colorWidthTextBox = new Persona5StyledTextBox
         {
             Text = radius.ToString(),
-            Watermark = "325"
+            Watermark = "320"
         };
         var deleteButton = new Persona5StyleButton
         {
@@ -192,7 +192,8 @@ public partial class Generator : Window
             ["ratio"] = GetSelectedRatio(),
             ["font_path"] = FontFolderPath.Text,
             ["colors"] = GetColorsAndRadii(),
-            ["paragraphs"] = GetContents()
+            ["paragraphs"] = GetContents(),
+            ["version"] = App.Version,
         };
 
         if (!jsonMap["colors"]!.Any())

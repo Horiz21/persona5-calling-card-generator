@@ -61,6 +61,8 @@ def main():
             )
         )
 
+    version = data["version"]
+
     ## Generate
     card = CallingCard(
         set_width=set_width,
@@ -70,6 +72,8 @@ def main():
         paragraphs=paragraphs,
         fonts_path=os.path.join(font_path),
         antialias=2,
+        version=version,
+        watermark=True,
     )
     card.generate()
     sys.stdout.buffer.write(card.tobyte())

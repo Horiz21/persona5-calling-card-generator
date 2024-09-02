@@ -1,15 +1,18 @@
 import io
 import os
+import platform
+import getpass
 from typing import List
 from math import ceil, sqrt
 from PIL import Image, ImageDraw
 from paragraph import Paragraph
-
+from utils import Watermark
+from datetime import datetime
 
 class CardBackground:
     def __init__(
         self,
-        radii: List[float] = [120, 150],
+        radii: List[float] = [260, 320],
         colors: List[str] = ["#F00", "#000"],
     ):
         self.radii = radii
@@ -52,6 +55,8 @@ class CallingCard:
         paragraphs: List[Paragraph],
         fonts_path: str,
         antialias: int = 2,
+        version: str = "Release",
+        watermark: bool = True,
     ):
         self.antialias = antialias
         self.set_width = set_width
@@ -81,6 +86,8 @@ class CallingCard:
             self.paragraphs[i].style.character_style.size *= antialias
 
         self.fonts_path = fonts_path
+        self.version = version
+        self.watermark = watermark
 
     def generate(self):
         for paragraph in self.paragraphs:
@@ -112,10 +119,18 @@ class CallingCard:
 
         image = self.background.image
         image.paste(total_image, (self.padding[0], self.padding[1]), total_mask)
-        self.image = image.resize(
+        image = image.resize(
             (self.set_width, self.image_height // self.antialias),
             resample=Image.LANCZOS,
         )
+
+        if self.watermark:
+            marker = Watermark()
+            image = marker.embed(f"""This image was generated using the open-source Persona 5 Calling Card Generator (P5CCG) version {self.version} on {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')} by {getpass.getuser()}.
+P5CCG is designed for entertainment, non-commercial, and fair use only. All rights to Persona 5, including its trademarks and visual design, are owned by ATLUS.
+By using P5CCG, users accept responsibility for how this image is utilized and agree that the creators of P5CCG bear no liability for any misuse or infringement.""", image)
+
+        self.image = image
 
     def save(
         self,

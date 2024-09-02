@@ -3,7 +3,7 @@ from character import Pattern, CharacterStyle, Character
 from PIL import Image
 from random import randint, choices
 from copy import deepcopy
-from font_manager import FontManager
+from utils import FontManager
 
 SCHEME = ["light", "dark"]
 SCHEME_WEIGHT = [1, 1]

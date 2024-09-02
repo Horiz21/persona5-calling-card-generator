@@ -40,7 +40,10 @@ def main():
                 style=AUTHOR_PARAGRAPH,
             ),
         ],
-        fonts_path=os.path.join(os.path.dirname(__file__), "fonts"),
+        fonts_path=os.path.join(
+            os.path.expanduser("~"),
+            "AppData/Local/Microsoft/Windows/Fonts",
+        ),
         antialias=2,
     )
     card.generate()

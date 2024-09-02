@@ -6,6 +6,9 @@ namespace P5CCG;
 
 public partial class App : Application
 {
+    public const string Version = "Beta-240902";
+    public const string Link = "https://github.com/Horiz21/persona5-calling-card-generator";
+    
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);

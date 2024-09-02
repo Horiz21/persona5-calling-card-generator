@@ -75,7 +75,7 @@
                                    ToolTip.Tip="使用 HEX 代码的形式表示，例如 #FF0000 表示红色" />
                             <Label Grid.Column="4" Content="半径"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   ToolTip.Tip="背景同心圆单个圆环的像素数，例如 “红色:黑色 = 260:325” 是一个接近原作效果的数值" />
+                                   ToolTip.Tip="背景同心圆单个圆环的像素数，例如 “红色:黑色 = 260px:320px = 13:16” 是一个接近原作效果的数值" />
                             <Label Grid.Column="6" Content="移除" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Grid>
                     </StackPanel>
@@ -84,7 +84,7 @@
                 <!--内容-->
                 <Grid ColumnDefinitions="* 40">
                     <Image Source="../Assets/Images/caption_content.png" Height="40" HorizontalAlignment="Left" />
-                    <local:Persona5StyleButton x:Name="ContectButton"
+                    <local:Persona5StyleButton x:Name="ContentButton"
                                                Grid.Column="1"
                                                DefaultImage="../Assets/Images/button_add_normal.png"
                                                HoverImage="../Assets/Images/button_add_hover.png"

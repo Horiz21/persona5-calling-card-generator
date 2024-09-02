@@ -3,9 +3,10 @@ Python/__pycache__/
 *.py[cod]
 *$py.class
 
-# local directories
+# local directories and files
 Assets/CustomFonts/
 Assets/Working/
+test.py
 
 # pyinstaller
 Python/build/

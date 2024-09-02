@@ -1,3 +1,5 @@
+## P5CCG GUI based on Python and tkinter has been deprecated after version Beta-240827
+
 import os
 import sys
 import gettext
