@@ -9,6 +9,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -31,20 +32,70 @@ public partial class Generator : Window
         ExportButton.Click += ExportCallingCardAsync;
         FontFolderButton.Click += SelectFontFolder;
 
-        HelpButton.Click += (_, _) =>
-        {
-            var dialog = new Persona5StyledDialog(this, "关于",
-                $@"当前版本：{App.Version}
-开源地址：{App.Link}");
-            dialog.ShowDialog(this);
-        };
+        HelpButton.Click += ShowHelpMessage;
+
+
         HideWindowButton.Click += (_, _) => WindowState = Minimized;
         CloseWindowButton.Click += (_, _) => Close();
-
-        // Default Values
         AddRowForColor("#FF0000", 260);
         AddRowForColor("#000000", 320);
         AddRowForContent();
+    }
+
+    private void ShowHelpMessage(object? sender, EventArgs e)
+    {
+        var dialog = new Persona5StyledDialog(this, $@"当前版本: {App.Version}{'\n'}开源地址: {App.Link}");
+
+        dialog.ViceButton.ControlTextContent = "检查更新";
+        dialog.ViceButton.Click += async (_, _) =>
+        {
+            try
+            {
+                var reply = new Ping().Send("google.com", 1000, "horiz"u8.ToArray());
+                var networkState = reply.Status == IPStatus.Success ? "en" : "cn";
+
+                var json = await App.FetchJsonAsync(
+                    networkState == "en" ? App.VersionJsonLinkEn : App.VersionJsonLinkCn);
+
+                var latestVersion = json?.GetValue("latestVersion")?.ToString();
+
+                if (latestVersion != App.Version)
+                {
+                    var latestVersionDetails =
+                        json?["versions"]?.FirstOrDefault(v => v["version"]?.ToString() == latestVersion);
+
+                    if (latestVersionDetails == null || dialog.ViceButton.ControlTextContent == "下载更新") return;
+                    var updateNotes = latestVersionDetails[networkState == "en" ? "updateNotesEN" : "updateNotesCN"]
+                        ?.ToString();
+                    dialog.ViceTextBlock.Text = $"{updateNotes}";
+                    dialog.ViceTextBlock.IsVisible = true;
+                    dialog.ViceButton.ControlTextContent = "下载更新";
+                    dialog.ViceButton.Click += (_, _) =>
+                    {
+                        var updateUrl =
+                            latestVersionDetails[networkState == "en" ? "downloadUrlEN" : "downloadUrlCN"];
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = (string)updateUrl!,
+                            UseShellExecute = true
+                        });
+                    };
+                }
+                else
+                {
+                    dialog.ViceTextBlock.Text = "当前已是最新版本！";
+                    dialog.ViceTextBlock.IsVisible = true;
+                }
+            }
+            catch
+            {
+                dialog.ViceTextBlock.Text = "检查更新失败！请确认设备是否接入互联网。";
+                dialog.ViceTextBlock.IsVisible = true;
+            }
+        };
+
+        dialog.ViceButton.IsVisible = true;
+        dialog.ShowDialog(this);
     }
 
     private async void SelectFontFolder(object? sender, EventArgs e)
@@ -62,17 +113,14 @@ public partial class Generator : Window
 
         var fontFiles = Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories)
             .Where(file => file.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase) ||
-                           file.EndsWith(".otf", StringComparison.OrdinalIgnoreCase) ||
-                           file.EndsWith(".pfb", StringComparison.OrdinalIgnoreCase) ||
-                           file.EndsWith(".pfm", StringComparison.OrdinalIgnoreCase) ||
-                           file.EndsWith(".bdf", StringComparison.OrdinalIgnoreCase));
+                           file.EndsWith(".otf", StringComparison.OrdinalIgnoreCase));
 
         if (fontFiles.Any())
             FontFolderPath.ControlTextBox.Text = folderPath;
         else
         {
-            var dialog = new Persona5StyledDialog(this, "字体目录错误",
-                "所选文件夹中没有找到字体文件。当前版本支持的字体格式为 TrueType (.ttf) 与 OpenType (.otf)。");
+            var dialog = new Persona5StyledDialog(this,
+                "字体目录错误！所选文件夹中没有找到字体文件。当前版本支持的字体格式为 TrueType (.ttf) 与 OpenType (.otf)。");
             await dialog.ShowDialog(this);
         }
     }
@@ -122,7 +170,7 @@ public partial class Generator : Window
         {
             if (ColorStackPanel.Children.Count <= 2)
             {
-                var dialog = new Persona5StyledDialog(this, "无法删除", "至少保留一个颜色-半径组合！");
+                var dialog = new Persona5StyledDialog(this, "无法删除！\n至少保留一个颜色-半径组合！");
                 dialog.ShowDialog(this);
             }
             else
@@ -188,7 +236,7 @@ public partial class Generator : Window
         {
             if (ContentStackPanel.Children.Count <= 2)
             {
-                var dialog = new Persona5StyledDialog(this, "无法删除", "至少保留一个文本段落！");
+                var dialog = new Persona5StyledDialog(this, "无法删除！\n至少保留一个文本段落！");
                 dialog.ShowDialog(this);
             }
             else ContentStackPanel.Children.Remove(grid);
@@ -215,7 +263,7 @@ public partial class Generator : Window
 
         if (!jsonMap["colors"]!.Any())
         {
-            var dialog = new Persona5StyledDialog(this, "无法生成", "含有一个或多个非法的颜色-半径值！");
+            var dialog = new Persona5StyledDialog(this, "无法生成！\n含有一个或多个非法的颜色-半径值！");
             await dialog.ShowDialog(this);
             return;
         }
@@ -248,7 +296,7 @@ public partial class Generator : Window
         catch
         {
             Debug.WriteLine(escapedArgs);
-            var dialog = new Persona5StyledDialog(this, "生成失败",
+            var dialog = new Persona5StyledDialog(this,
                 "P5CCG 遇到问题，无法生成，请检查：\n1. 字体目录是否存在且可访问（由于系统限制，P5CCG 可能无法访问系统字体目录，建议自建字体目录）\n2. 字体目录中是否有且仅有 .ttf 和 .otf 格式字体文件");
             await dialog.ShowDialog(this);
         }
@@ -258,7 +306,7 @@ public partial class Generator : Window
     {
         if (_generatedCallingCardStream == null || _generatedCallingCardStream.Length == 0)
         {
-            var dialog = new Persona5StyledDialog(this, "导出失败！", "没有可供导出的图像数据，请先使用生成功能生成并预览，再进行导出。");
+            var dialog = new Persona5StyledDialog(this, "导出失败！\n没有可供导出的图像数据，请先使用生成功能生成并预览，再进行导出。");
             await dialog.ShowDialog(this);
             return;
         }
@@ -298,7 +346,7 @@ public partial class Generator : Window
         }
         catch (Exception ex)
         {
-            var styledDialog = new Persona5StyledDialog(this, "导出失败！", $"保存图像时遇到错误: {ex.Message}");
+            var styledDialog = new Persona5StyledDialog(this, $"导出失败！{'\n'}保存图像时遇到错误: {ex.Message}");
             await styledDialog.ShowDialog(this);
         }
     }

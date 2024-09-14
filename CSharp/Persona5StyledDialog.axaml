@@ -1,28 +1,36 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		xmlns:local="clr-namespace:P5CCG"
-        x:Class="P5CCG.Persona5StyledDialog"        
+        xmlns:local="clr-namespace:P5CCG"
+        x:Class="P5CCG.Persona5StyledDialog"
         Background="Black"
-		Width="360" MinHeight="60"
-		SizeToContent="Height"
+        Width="540" MinHeight="60"
+        SizeToContent="Height"        
+        CanResize="False"
         ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaTitleBarHeightHint="20"
-		Icon="../Assets/p5ccg.ico">
-	<Grid>
-		<Image Source="../Assets/Images/star_background_small.png"
-			   HorizontalAlignment="Left"
-			   VerticalAlignment="Bottom"
-			   Height="60"
-			   Opacity="0.5"/>
-		<StackPanel Margin="20">
-			<TextBlock x:Name="MessageTextBlock"
-					   TextWrapping="Wrap"/>
-			<Grid Height="10"/>
-			<local:Persona5StyleButton x:Name="ConfirmButton"
-			                           ControlTextContent="确认"
-			                           IsTextMode="True"
-			                           Width="80"/>
-		</StackPanel>
-	</Grid>
+        Icon="../Assets/p5ccg.ico">
+    <Grid>
+        <Image Source="../Assets/Images/star_background_small.png"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Bottom"
+               Height="60"
+               Opacity="0.5" />
+        <StackPanel Margin="20">
+            <TextBlock x:Name="MessageTextBlock" TextWrapping="Wrap" Margin="0,0,0,10"/>
+            <TextBlock x:Name="ViceTextBlock" TextWrapping="Wrap" IsVisible="False" Margin="0,0,0,10"
+                       FontSize="12"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <local:Persona5StyleButton x:Name="ViceButton"
+                                           ControlTextContent="确认"
+                                           IsTextMode="True"
+                                           IsVisible="False"
+                                           Width="80" />
+                <local:Persona5StyleButton x:Name="ConfirmButton"
+                                           ControlTextContent="确认"
+                                           IsTextMode="True"
+                                           Width="80" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
 </Window>
