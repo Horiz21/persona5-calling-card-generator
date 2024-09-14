@@ -1,0 +1,21 @@
+{
+  "latestVersion": "Beta-240827",
+  "versions": [
+    {
+      "version": "Beta-240827",
+      "releaseDate": "2024-08-27",
+      "updateNotesEN": "In version Beta-240827, the graphical user interface (GUI) has been updated to a modern Persona5-themed design using Avalonia, C#, and Python. The GUI now offers improved aesthetics and usability compared to the previous beta. This version is suitable for regular use and aligns closely with the original Persona 5 style. Advanced features are accessible through the source code but are not part of the current GUI update plan due to the complexity of implementation and the limited impact on basic functionality.",
+      "updateNotesCN": "在 Beta-240827 版本中，图形用户界面（GUI）已更新为采用 Avalonia、C# 和 Python 开发的现代 Persona 5 风格设计。与之前的测试版相比，GUI 的美观性和易用性均有所提升。更高级的功能目前仍然仅可通过源代码访问。由于实施复杂性和对基本功能影响有限，GUI 版本的高级功能不在当前的更新计划中。",
+      "downloadUrlEN": "https://github.com/Horiz21/persona5-calling-card-generator/releases/download/Beta-240827/P5CCG-Beta-240827.zip",
+      "downloadUrlCN": "https://wwwr.lanzoul.com/iD0Xo28lwzxc"
+    },
+    {
+      "version": "Alpha-240622",
+      "releaseDate": "2024-07-01",
+      "updateNotesEN": "After gaining some traction on social media, I finally decided to create a usable simple GUI using tkinter in beta.In this GUI version of P5CCG, the user has been able to simply define multiple paragraph and background colors, specify fonts and image widths, etc.The Alpha-240622 version is sufficient for day-to-day use, but advanced functionality is still required for now via the source code.",
+      "updateNotesCN": "在社交媒体上获得一些关注后，我决定在测试版中使用 tkinter 创建一个可用的简单图形用户界面（GUI）。在这个图形用户界面版本的 P5CCG 中，用户已经可以简单地定义多个段落和背景颜色、指定字体和图片宽度等。Alpha-240622 版本足以满足日常使用，但更多的高级功能目前仍需要通过源代码使用。",
+      "downloadUrlEN": "https://github.com/Horiz21/persona5-calling-card-generator/releases/download/Alpha-240622/P5CCG-Alpha-240622.exe",
+      "downloadUrlCN": "https://wwb.lanzoul.com/iaDMD22f7lpi"
+    }
+  ]
+}

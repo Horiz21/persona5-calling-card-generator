@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
@@ -13,12 +14,17 @@ public partial class Persona5QuadrilateralBackground : UserControl
         InitializeComponent();
     }
 
-    public void UpdateShape(int width, int height, int xDelta, int yDelta, int margin)
+    public void UpdateShape(int width, int height, int xDelta, int yDelta, List<double> margin)
     {
-        Padding = new Thickness(margin);
+        double left = margin[0];
+        double top = margin.Count > 1 ? margin[1] : left;
+        double right = margin.Count > 2 ? margin[2] : left;
+        double bottom = margin.Count > 2 ? margin[3] : top;
 
-        var xMax = width - 2 * margin;
-        var yMax = height - 2 * margin;
+        Padding = new Thickness(left, top, right, bottom);
+
+        var xMax = (int)(width - left - right);
+        var yMax = (int)(height - top - bottom);
 
         Random random = new();
         var topLeftX = random.Next(xDelta);

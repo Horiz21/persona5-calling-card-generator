@@ -1,9 +1,13 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:local="clr-namespace:P5CCG"
-        x:Class="P5CCG.Persona5StyledDialog"
+        x:Class="P5CCG.Persona5StyledDialog"        
+        Background="Black"
 		Width="360" MinHeight="60"
 		SizeToContent="Height"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="20"
 		Icon="../Assets/p5ccg.ico">
 	<Grid>
 		<Image Source="../Assets/Images/star_background_small.png"
@@ -11,17 +15,14 @@
 			   VerticalAlignment="Bottom"
 			   Height="60"
 			   Opacity="0.5"/>
-		<StackPanel Margin="15,10">
+		<StackPanel Margin="20">
 			<TextBlock x:Name="MessageTextBlock"
-					   TextWrapping="Wrap"
-					   Margin="10,5"/>
-			<StackPanel Orientation="Horizontal" 
-						HorizontalAlignment="Center">
+					   TextWrapping="Wrap"/>
+			<Grid Height="10"/>
 			<local:Persona5StyleButton x:Name="ConfirmButton"
 			                           ControlTextContent="确认"
 			                           IsTextMode="True"
-			                           Width="75"/>
-			</StackPanel>
+			                           Width="80"/>
 		</StackPanel>
 	</Grid>
 </Window>

@@ -46,13 +46,13 @@ namespace P5CCG {
 		private void GenerateBackground(object sender, EventArgs e) {
 			if ((bool)MainRadioButton.IsChecked)
 			{
-				BackgroundPath.UpdateShape((int)Bounds.Width,(int)Bounds.Height,5,0,2);
+				BackgroundPath.UpdateShape((int)Bounds.Width,(int)Bounds.Height,5,0,[2.0, 3.5]);
 				BackgroundPath.UpdateColor(Colors.White);
 				ControlText.Foreground = Brushes.Black;
 			}
 			else
 			{
-				BackgroundPath.UpdateShape((int)Bounds.Width,(int)Bounds.Height,5,0,2);
+				BackgroundPath.UpdateShape((int)Bounds.Width,(int)Bounds.Height,5,0,[2.0, 3.5]);
 				BackgroundPath.UpdateColor(Colors.Transparent);
 				ControlText.Foreground = Brushes.White;	
 			}

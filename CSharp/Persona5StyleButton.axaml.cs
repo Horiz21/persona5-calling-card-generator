@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using System;
+using System.Diagnostics;
 
 namespace P5CCG
 {
@@ -54,6 +55,8 @@ namespace P5CCG
             set => SetValue(IsTextModeProperty, value);
         }
         
+        private int _boundsHeight = -1, _boundsWidth=-1;
+        
         public Persona5StyleButton()
         {
             InitializeComponent();
@@ -62,14 +65,19 @@ namespace P5CCG
             PointerExited += OnPointerLeave;
             PointerPressed += OnPointerPressed;
             PointerReleased += OnPointerReleased;
-            // 初始化时设置默认状态
-            UpdateAppearance(ButtonState.Default);
+            
+            Loaded += (_,_)=>UpdateAppearance(ButtonState.Default);
         }
 
         private void UpdateAppearance(ButtonState state)
         {
             if (IsTextMode)
             {
+                if (_boundsWidth <0)
+                {
+                    _boundsHeight = (int)Bounds.Height;
+                    _boundsWidth = (int)Bounds.Width;
+                }
                 switch (state)
                 {
                     case ButtonState.Default:
@@ -102,7 +110,7 @@ namespace P5CCG
 
         private void UpdateColor(Color background, Color foreground)
         {
-            BackgroundPath.UpdateShape((int)Bounds.Width, (int)Bounds.Height, 5, 0, 2);
+            BackgroundPath.UpdateShape(_boundsWidth,_boundsHeight, 5, 0, [2.0, 3.5]);
             BackgroundPath.UpdateColor(background);
             ControlText.Foreground = new SolidColorBrush(foreground);
         }

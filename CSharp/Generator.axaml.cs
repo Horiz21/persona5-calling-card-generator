@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Avalonia.Controls.WindowState;
 
 namespace P5CCG;
 
@@ -29,9 +30,16 @@ public partial class Generator : Window
         GenerateButton.Click += GenerateCallingCardAsync;
         ExportButton.Click += ExportCallingCardAsync;
         FontFolderButton.Click += SelectFontFolder;
-        AboutButton.Click += (_, _) =>
-            new Persona5StyledDialog(this, "关于",
-                $@"当前版本：{App.Version}\n开源地址：{App.Link}").Show();
+
+        HelpButton.Click += (_, _) =>
+        {
+            var dialog = new Persona5StyledDialog(this, "关于",
+                $@"当前版本：{App.Version}
+开源地址：{App.Link}");
+            dialog.ShowDialog(this);
+        };
+        HideWindowButton.Click += (_, _) => WindowState = Minimized;
+        CloseWindowButton.Click += (_, _) => Close();
 
         // Default Values
         AddRowForColor("#FF0000", 260);
@@ -62,13 +70,16 @@ public partial class Generator : Window
         if (fontFiles.Any())
             FontFolderPath.ControlTextBox.Text = folderPath;
         else
-            new Persona5StyledDialog(this, "字体目录错误",
-                "所选文件夹中没有找到字体文件。当前版本支持的字体格式为 TrueType (.ttf) 与 OpenType (.otf)。").Show();
+        {
+            var dialog = new Persona5StyledDialog(this, "字体目录错误",
+                "所选文件夹中没有找到字体文件。当前版本支持的字体格式为 TrueType (.ttf) 与 OpenType (.otf)。");
+            await dialog.ShowDialog(this);
+        }
     }
 
     private void AddRowForColor(string hex, int radius)
     {
-        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("75 * 182 * 85 * 40"), Height = 32 };
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("80 * 210 * 85 * 40"), Height = 35 };
 
         var colorPanel = new Persona5StyledTextBox();
 
@@ -96,7 +107,7 @@ public partial class Generator : Window
             var newHex = colorHexTextBox.ControlTextBox.Text;
             if (newHex != null && Regex.IsMatch(newHex, @"^#?([A-Fa-f0-9]{6})$"))
             {
-                colorPanel.BackgroundPath.UpdateShape(75, 32, 5, 0, 2);
+                colorPanel.BackgroundPath.UpdateShape(80, 35, 5, 0, [2.0, 3.5]);
                 colorPanel.BackgroundPath.UpdateColor(Color.Parse("#" + newHex[^6..]));
                 colorPanel.ControlTextBox.Text = string.Empty;
             }
@@ -110,13 +121,16 @@ public partial class Generator : Window
         deleteButton.Click += (_, _) =>
         {
             if (ColorStackPanel.Children.Count <= 2)
-                new Persona5StyledDialog(this, "无法删除", "至少保留一个颜色-半径组合！").Show();
+            {
+                var dialog = new Persona5StyledDialog(this, "无法删除", "至少保留一个颜色-半径组合！");
+                dialog.ShowDialog(this);
+            }
             else
                 ColorStackPanel.Children.Remove(grid);
         };
 
         colorPanel.ControlTextBox.IsReadOnly = true;
-        colorPanel.BackgroundPath.UpdateShape(75, 32, 5, 0, 2);
+        colorPanel.BackgroundPath.UpdateShape(80, 35, 5, 0, [2.0, 3.5]);
         colorPanel.BackgroundPath.UpdateColor(Color.Parse(hex));
         grid.Children.Add(colorPanel);
         Grid.SetColumn(colorPanel, 0);
@@ -132,7 +146,7 @@ public partial class Generator : Window
 
     private void AddRowForContent(string content = "")
     {
-        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("75 167 * 50 * 50 * 40"), Height = 32 };
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("80 195 * 50 * 50 * 40"), Height = 35 };
 
         var contentTextBox = new Persona5StyledTextBox();
         if (content.Length > 0) contentTextBox.Text = content;
@@ -173,7 +187,10 @@ public partial class Generator : Window
         deleteButton.Click += (_, _) =>
         {
             if (ContentStackPanel.Children.Count <= 2)
-                new Persona5StyledDialog(this, "无法删除", "至少保留一个文本段落！").Show();
+            {
+                var dialog = new Persona5StyledDialog(this, "无法删除", "至少保留一个文本段落！");
+                dialog.ShowDialog(this);
+            }
             else ContentStackPanel.Children.Remove(grid);
         };
 
@@ -198,7 +215,8 @@ public partial class Generator : Window
 
         if (!jsonMap["colors"]!.Any())
         {
-            new Persona5StyledDialog(this, "无法生成", "含有一个或多个非法的颜色-半径值！").Show();
+            var dialog = new Persona5StyledDialog(this, "无法生成", "含有一个或多个非法的颜色-半径值！");
+            await dialog.ShowDialog(this);
             return;
         }
 
@@ -230,10 +248,9 @@ public partial class Generator : Window
         catch
         {
             Debug.WriteLine(escapedArgs);
-            new Persona5StyledDialog(this, "生成失败",
-                    "P5CCG 遇到问题，无法生成，请检查：\n1. 字体目录是否存在且可访问（由于系统限制，P5CCG 可能无法访问系统字体目录，建议自建字体目录）\n2. 字体目录中是否有且仅有 .ttf 和 .otf 格式字体文件")
-                .Show();
-            new Persona5StyledDialog(this, "生成参数", escapedArgs).Show();
+            var dialog = new Persona5StyledDialog(this, "生成失败",
+                "P5CCG 遇到问题，无法生成，请检查：\n1. 字体目录是否存在且可访问（由于系统限制，P5CCG 可能无法访问系统字体目录，建议自建字体目录）\n2. 字体目录中是否有且仅有 .ttf 和 .otf 格式字体文件");
+            await dialog.ShowDialog(this);
         }
     }
 
@@ -241,18 +258,14 @@ public partial class Generator : Window
     {
         if (_generatedCallingCardStream == null || _generatedCallingCardStream.Length == 0)
         {
-            new Persona5StyledDialog(this, "导出失败！", "没有可供导出的图像数据，请先使用生成功能生成并预览，再进行导出。").Show();
+            var dialog = new Persona5StyledDialog(this, "导出失败！", "没有可供导出的图像数据，请先使用生成功能生成并预览，再进行导出。");
+            await dialog.ShowDialog(this);
             return;
         }
 
-        var topLevel = TopLevel.GetTopLevel(this);
-        if (topLevel == null)
-        {
-            new Persona5StyledDialog(this, "导出失败！", "无法获取当前窗口。").Show();
-            return;
-        }
+        var topLevel = GetTopLevel(this);
 
-        var storageProvider = topLevel.StorageProvider;
+        var storageProvider = topLevel?.StorageProvider;
         var fileTypes = new FilePickerFileType("PNG 文件")
         {
             Patterns = new[] { "*.png" },
@@ -261,13 +274,13 @@ public partial class Generator : Window
 
         var options = new FilePickerSaveOptions
         {
-            Title = "保存PNG文件",
+            Title = "保存 PNG 文件",
             DefaultExtension = ".png",
             SuggestedFileName = "calling_card.png",
             FileTypeChoices = new[] { fileTypes }
         };
 
-        var file = await storageProvider.SaveFilePickerAsync(options);
+        var file = await storageProvider?.SaveFilePickerAsync(options)!;
 
         if (file != null)
         {
@@ -286,7 +299,7 @@ public partial class Generator : Window
         catch (Exception ex)
         {
             var styledDialog = new Persona5StyledDialog(this, "导出失败！", $"保存图像时遇到错误: {ex.Message}");
-            styledDialog.Show();
+            await styledDialog.ShowDialog(this);
         }
     }
 

@@ -73,7 +73,7 @@ namespace P5CCG {
 			{
 				PointerReleased += OnPointerReleased;
 				BackgroundPath.UpdateStroke(Colors.White, 2);
-				BackgroundPath.UpdateShape((int)Bounds.Width, (int)Bounds.Height, 5, 0, 2);
+				BackgroundPath.UpdateShape((int)Bounds.Width, (int)Bounds.Height, 5, 0, [2.0, 3.5]);
 			};
 		}
 
@@ -82,7 +82,7 @@ namespace P5CCG {
 			Debug.WriteLine(currentState);
 			if (IsTextMode)
 			{
-				BackgroundPath.UpdateShape((int)Bounds.Width,(int)Bounds.Height,5,0,2);
+				BackgroundPath.UpdateShape((int)Bounds.Width,(int)Bounds.Height,5,0,[2.0, 3.5]);
 				switch (currentState)
 				{
 					case 1:
