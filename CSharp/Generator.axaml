@@ -45,7 +45,7 @@
                     <Grid RowDefinitions="35 35" ColumnDefinitions="80 300 50">
                         <Label Grid.Row="0" Grid.Column="0" Content="图像比例" HorizontalAlignment="Center"
                                VerticalAlignment="Center" />
-                        <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" ColumnDefinitions="* * * *">
+                        <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" ColumnDefinitions="* * * * *">
                             <local:Persona5StyledRadioButton x:Name="Ratio01"
                                                              Grid.Column="0" GroupName="ImageRatio"
                                                              ControlTextContent="√2:1"
@@ -63,6 +63,10 @@
                                                              Grid.Column="3" GroupName="ImageRatio"
                                                              ControlTextContent="3:2"
                                                              ToolTip.Tip="3:2 是 35 毫米胶片用于静物拍摄的比例，也是常见的照片的印刷比例，适用于包括 5 吋、6 吋在内的照片印制" />
+                            <local:Persona5StyledRadioButton x:Name="RatioAuto"
+                                                             Grid.Column="4" GroupName="ImageRatio"
+                                                             ControlTextContent="自动"
+                                                             ToolTip.Tip="以 3840 像素作为宽度，高度根据内容自适应" />
                         </Grid>
                         <Label Grid.Row="1"
                                Grid.Column="0"
@@ -139,7 +143,8 @@
                       RowDefinitions="Auto 10 *">
                     <Border BorderBrush="White"
                             BorderThickness="2"
-                            Width="500"
+                            MaxWidth="500"
+                            MaxHeight="376"
                             VerticalAlignment="Center"
                             Background="Black"
                             HorizontalAlignment="Center">

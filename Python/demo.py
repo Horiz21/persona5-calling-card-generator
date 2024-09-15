@@ -8,8 +8,8 @@ from default_styles import *
 
 def main():
     card = CallingCard(
-        set_width=1600,
-        set_height=900,
+        set_width=3840,
+        set_height=0,  # Setting height to 0 will make the image height automatically adapt to the content.
         padding=[120, 80, 120, 40],
         background=PERSONA5_BACKGROUND,
         paragraphs=[
@@ -20,7 +20,7 @@ def main():
                     float=16,
                     shift=[-8, 16],
                     character_style=CharacterStyle(
-                        basesize=64,
+                        basesize=128,
                         rotate_sigma=2,
                         stretch=[0.2, 0.5],
                         swapcase_rate=0.25,
@@ -45,7 +45,9 @@ def main():
             "AppData/Local/Microsoft/Windows/Fonts",
         ),
         antialias=2,
+        font_check=False,  # Check if the font contains specific text. If True, it avoids garbled fonts, but will slow down the runtime considerably
     )
+
     card.generate()
     card.save("", "p5card.png")
 

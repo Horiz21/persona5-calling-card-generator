@@ -4,6 +4,8 @@ from PIL import Image
 from random import randint, choices
 from copy import deepcopy
 from utils import FontManager
+from fontTools.ttLib import TTFont, TTCollection
+
 
 SCHEME = ["light", "dark"]
 SCHEME_WEIGHT = [1, 1]
@@ -76,7 +78,7 @@ class Paragraph:
                 posx = 0
         self.add_images(horizontal_image, horizontal_mask)
 
-    def generate(self, content_max_width: int, fonts_path: str):
+    def generate(self, content_max_width: int, fonts_path: str, fonts_check: bool):
         self.font_manager = FontManager(fonts_path)
         self.images.clear()
         self.masks.clear()
@@ -89,15 +91,29 @@ class Paragraph:
                     i += 1
                     continue
 
+                target_character = self.text[i]
                 character = Character(
-                    character=self.text[i],
+                    character=target_character,
                     style=self.style.character_style,
                     pattern=Pattern(
                         mode=choices(SCHEME, weights=SCHEME_WEIGHT)[0],
                         type=choices(PATTERN, weights=PATTERN_WEIGHT)[0],
                     ),
                 )
-                character.generate(font_path=self.font_manager.choice())
+                _, font_path = self.font_manager.choice()
+                if fonts_check:
+                    cmap = {}
+                    while ord(target_character) not in cmap:
+                        index, font_path = self.font_manager.choice()
+                        font = (
+                            TTCollection(font_path).fonts[0]
+                            if font_path.lower().endswith(".ttc")
+                            else TTFont(font_path)
+                        )
+                        cmap = font.getBestCmap()
+                        self.font_manager.remove(index)
+                    self.font_manager.reset()
+                character.generate(font_path)
 
                 self.work_images.append(character.image)
                 self.work_masks.append(character.mask)

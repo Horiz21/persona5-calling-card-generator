@@ -356,7 +356,8 @@ public partial class Generator : Window
         if ((bool)Ratio01.MainRadioButton.IsChecked!) return "sqrt2:1";
         if ((bool)Ratio02.MainRadioButton.IsChecked!) return "16:9";
         if ((bool)Ratio03.MainRadioButton.IsChecked!) return "4:3";
-        return "3:2";
+        if ((bool)Ratio04.MainRadioButton.IsChecked!) return "3:2";
+        return "auto";
     }
 
     private JArray GetColorsAndRadii()

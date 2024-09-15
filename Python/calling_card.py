@@ -1,6 +1,5 @@
 import io
 import os
-import platform
 import getpass
 from typing import List
 from math import ceil, sqrt
@@ -8,6 +7,7 @@ from PIL import Image, ImageDraw
 from paragraph import Paragraph
 from utils import Watermark
 from datetime import datetime
+
 
 class CardBackground:
     def __init__(
@@ -55,14 +55,16 @@ class CallingCard:
         paragraphs: List[Paragraph],
         fonts_path: str,
         antialias: int = 2,
-        version: str = "Release",
+        version: str = "script",
         watermark: bool = True,
+        font_check: bool = False,
     ):
         self.antialias = antialias
         self.set_width = set_width
         self.set_height = set_height
         self.image_width = set_width * antialias
         self.image_height = set_height * antialias
+        self.auto_height = set_height <= 0
 
         if isinstance(padding, int):
             padding = [padding] * 4
@@ -88,15 +90,19 @@ class CallingCard:
         self.fonts_path = fonts_path
         self.version = version
         self.watermark = watermark
+        self.font_check = font_check
 
     def generate(self):
         for paragraph in self.paragraphs:
             paragraph.generate(
                 content_max_width=self.content_max_width,
                 fonts_path=self.fonts_path,
+                fonts_check=self.font_check,
             )
         content_height = sum(paragraph.height for paragraph in self.paragraphs)
-        # self.image_height = content_height + self.padding[1] + self.padding[3]  # deprecated
+        if self.auto_height:
+            self.image_height = content_height + self.padding[1] + self.padding[3]
+            self.set_height = self.image_height // self.antialias
         self.background.generate(self.image_width, self.image_height)
 
         total_image = Image.new("L", (self.content_max_width, content_height), 0)
@@ -120,15 +126,18 @@ class CallingCard:
         image = self.background.image
         image.paste(total_image, (self.padding[0], self.padding[1]), total_mask)
         image = image.resize(
-            (self.set_width, self.image_height // self.antialias),
+            (self.set_width, self.set_height),
             resample=Image.LANCZOS,
         )
 
         if self.watermark:
             marker = Watermark()
-            image = marker.embed(f"""This image was generated using the open-source Persona 5 Calling Card Generator (P5CCG) version {self.version} on {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')} by {getpass.getuser()}.
+            image = marker.embed(
+                f"""This image was generated using the open-source Persona 5 Calling Card Generator (P5CCG) version {self.version} on {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')} by {getpass.getuser()}.
 P5CCG is designed for entertainment, non-commercial, and fair use only. All rights to Persona 5, including its trademarks and visual design, are owned by ATLUS.
-By using P5CCG, users accept responsibility for how this image is utilized and agree that the creators of P5CCG bear no liability for any misuse or infringement.""", image)
+By using P5CCG, users accept responsibility for how this image is utilized and agree that the creators of P5CCG bear no liability for any misuse or infringement.""",
+                image,
+            )
 
         self.image = image
 

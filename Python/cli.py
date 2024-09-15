@@ -22,8 +22,10 @@ def main():
         set_width, set_height = 3840, 2160
     elif data["ratio"] == "4:3":
         set_width, set_height = 3600, 2700
-    else:  # data["ratio"] == "3:2":
+    elif data["ratio"] == "3:2":
         set_width, set_height = 3600, 2400
+    else: # auto
+        set_width, set_height = 3840, 0
 
     ## Get Font Path
     font_path = data["font_path"]

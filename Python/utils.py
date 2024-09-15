@@ -1,15 +1,23 @@
 import os
 from PIL import Image
-from time import time
-
 from random import choice
+
 
 class FontManager:
     def __init__(self, root: str):
         self.paths = [os.path.join(root, filename) for filename in os.listdir(root)]
+        self.len = len(self.paths)
+        self.work_paths = list(range(self.len))
+
+    def reset(self):
+        self.work_paths = list(range(self.len))
+
+    def remove(self, index):
+        self.work_paths.remove(index)
 
     def choice(self):
-        return choice(self.paths)
+        index = choice(self.work_paths)
+        return index, self.paths[index]
 
 
 class Watermark:
