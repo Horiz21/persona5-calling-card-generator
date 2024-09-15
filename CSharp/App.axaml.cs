@@ -1,4 +1,3 @@
-using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia;
@@ -10,7 +9,7 @@ namespace P5CCG;
 
 public partial class App : Application
 {
-    public const string Version = "Beta-240914";
+    public const string Version = "V1.0";
     public const string Link = "https://github.com/Horiz21/persona5-calling-card-generator";
 
     public const string VersionJsonLinkEn =

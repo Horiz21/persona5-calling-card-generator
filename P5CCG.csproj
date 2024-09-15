@@ -7,7 +7,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <ApplicationIcon>Assets\p5ccg.ico</ApplicationIcon>
-    <Version>0.2.0</Version>
+    <Version>1.0</Version>
     <Title>Persona 5 预告信生成器</Title>
     <Authors>Horiz21</Authors>
     <Company>Horiz21</Company>

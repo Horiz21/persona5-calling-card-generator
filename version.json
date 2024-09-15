@@ -1,6 +1,14 @@
 {
-  "latestVersion": "Beta-240827",
+  "latestVersion": "V1.0",
   "versions": [
+    {
+      "version": "V1.0",
+      "releaseDate": "2024-09-15",
+      "updateNotesEN": "On September 15, 2016, ATLUS officially released Persona 5 in Japan. Eight years later, the Persona 5 Calling Card Generator (P5CCG), created and open-sourced by gamer Horiz21, has officially released V1.0. Compared to the previous beta version, the official release features an improved interface layout, additional functionalities, and enhanced security through digital watermarking. Now, experience the phantom-like P5CCG and create your own calling card...",
+      "updateNotesCN": "2016 年 9 月 15 日，ATLUS在日本正式发布《Persona 5》。8年后，由玩家Horiz21创建并开源的《Persona 5 预告信生成器》（P5CCG）正式发布 V1.0 版本。与之前的测试版相比，正式版调整了界面布局，增加了一些新功能，并通过数字水印技术提高了安全性。现在，来试试这个如同幻影般的 P5CCG，创作你自己的预告信吧……",
+      "downloadUrlEN": "https://github.com/Horiz21/persona5-calling-card-generator/releases/download/V1.0/P5CCG-V1.0.zip",
+      "downloadUrlCN": "https://gitee.com/horiz21/persona5-calling-card-generator/releases/download/V1.0/P5CCG-V1.0.zip"
+    },
     {
       "version": "Beta-240827",
       "releaseDate": "2024-08-27",
