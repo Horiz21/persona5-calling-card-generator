@@ -103,7 +103,7 @@ class Paragraph:
                 _, font_path = self.font_manager.choice()
                 if fonts_check:
                     cmap = {}
-                    while ord(target_character) not in cmap:
+                    while cmap == None or ord(target_character) not in cmap:
                         index, font_path = self.font_manager.choice()
                         font = (
                             TTCollection(font_path).fonts[0]

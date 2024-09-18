@@ -24,7 +24,7 @@ def main():
         set_width, set_height = 3600, 2700
     elif data["ratio"] == "3:2":
         set_width, set_height = 3600, 2400
-    else: # auto
+    else:  # auto
         set_width, set_height = 3840, 0
 
     ## Get Font Path
@@ -51,7 +51,7 @@ def main():
                 style=ParagraphStyle(
                     align=paragraph["alignment"],
                     character_style=(
-                        CharacterStyle(basesize=192, rotate_sigma=2, stretch=[0.2, 0.5])
+                        CharacterStyle(basesize=192, stretch=[0.2, 0.5])
                         if paragraph["fontsize"] == "L"
                         else (
                             CharacterStyle(basesize=128)

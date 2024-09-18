@@ -1,5 +1,3 @@
-import os
-
 from character import CharacterStyle
 from paragraph import ParagraphStyle, Paragraph
 from calling_card import CallingCard
@@ -22,7 +20,7 @@ def main():
                     character_style=CharacterStyle(
                         basesize=128,
                         rotate_sigma=2,
-                        stretch=[0.2, 0.5],
+                        stretch=[0.2, 0.4],
                         swapcase_rate=0.25,
                     ),
                 ),
@@ -32,7 +30,11 @@ def main():
                 style=TITLE_PARAGRAPH,
             ),
             Paragraph(
-                text="你仗势欺人，\n盗窃门下弟子创意，\n是个不惮剽窃的艺术家。\n我们决定让你亲口供认自己的罪行。\n我们将取走你那扭曲的欲望。",
+                text="""你仗势欺人，
+盗窃门下弟子创意，
+是个不惮剽窃的艺术家。
+我们决定让你亲口供认自己的罪行。
+我们将取走你那扭曲的欲望。""",
                 style=CONTENT_PARAGRAPH,
             ),
             Paragraph(
@@ -40,14 +42,10 @@ def main():
                 style=AUTHOR_PARAGRAPH,
             ),
         ],
-        fonts_path=os.path.join(
-            os.path.expanduser("~"),
-            "AppData/Local/Microsoft/Windows/Fonts",
-        ),
+        fonts_path="default",
         antialias=2,
-        font_check=False,  # Check if the font contains specific text. If True, it avoids garbled fonts, but will slow down the runtime considerably
+        font_check=True,
     )
-
     card.generate()
     card.save("", "p5card.png")
 

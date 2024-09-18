@@ -1,12 +1,9 @@
 import io
 import os
-import getpass
 from typing import List
 from math import ceil, sqrt
 from PIL import Image, ImageDraw
 from paragraph import Paragraph
-from utils import Watermark
-from datetime import datetime
 
 
 class CardBackground:
@@ -55,16 +52,16 @@ class CallingCard:
         paragraphs: List[Paragraph],
         fonts_path: str,
         antialias: int = 2,
-        version: str = "script",
+        version: str = "V1.1(CLI)",
         watermark: bool = True,
         font_check: bool = False,
     ):
         self.antialias = antialias
         self.set_width = set_width
         self.set_height = set_height
+        self.auto_height = set_height <= 0
         self.image_width = set_width * antialias
         self.image_height = set_height * antialias
-        self.auto_height = set_height <= 0
 
         if isinstance(padding, int):
             padding = [padding] * 4
@@ -87,7 +84,22 @@ class CallingCard:
             self.paragraphs[i].style.float *= antialias
             self.paragraphs[i].style.character_style.size *= antialias
 
+        if fonts_path == "default":
+            import platform
+
+            system = platform.system()
+            if system == "Windows":
+                fonts_path = os.path.join(
+                    os.path.expanduser("~"), "AppData/Local/Microsoft/Windows/Fonts"
+                )
+            elif system == "Darwin":
+                fonts_path = "/Library/Fonts"
+            elif system == "Linux":
+                fonts_path = "/usr/share/fonts"
+            else:
+                fonts_path = "../Assets/Fonts"
         self.fonts_path = fonts_path
+
         self.version = version
         self.watermark = watermark
         self.font_check = font_check
@@ -131,6 +143,10 @@ class CallingCard:
         )
 
         if self.watermark:
+            import getpass
+            from utils import Watermark
+            from datetime import datetime
+
             marker = Watermark()
             image = marker.embed(
                 f"""This image was generated using the open-source Persona 5 Calling Card Generator (P5CCG) version {self.version} on {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')} by {getpass.getuser()}.

@@ -1,23 +1,42 @@
 import os
 from PIL import Image
-from random import choice
+from random import choice, gauss
+
+
+def clip_gauss(start: float, end: float):
+    mean = (start + end) / 2
+    std_dev = (end - start) / 6
+    sample = gauss(mean, std_dev)
+    return (
+        sample
+        if sample >= start and sample <= end
+        else start if sample <= start else end
+    )
 
 
 class FontManager:
-    def __init__(self, root: str):
-        self.paths = [os.path.join(root, filename) for filename in os.listdir(root)]
-        self.len = len(self.paths)
-        self.work_paths = list(range(self.len))
+    def __init__(self, fonts_root: str):
+        self.fonts_path = [
+            os.path.join(fonts_root, font)
+            for font in os.listdir(fonts_root)
+            if os.path.join(fonts_root, font).lower().endswith((".ttc", ".ttf", ".otf"))
+        ]
+        self.len = len(self.fonts_path)
+        if self.len == 0:
+            raise ValueError(
+                f"The specified directory {fonts_root} does not contain any font files for the supported formats."
+            )
+        self.indexs = list(range(self.len))
 
     def reset(self):
-        self.work_paths = list(range(self.len))
+        self.indexs = list(range(self.len))
 
     def remove(self, index):
-        self.work_paths.remove(index)
+        self.indexs.remove(index)
 
     def choice(self):
-        index = choice(self.work_paths)
-        return index, self.paths[index]
+        index = choice(self.indexs)
+        return index, self.fonts_path[index]
 
 
 class Watermark:

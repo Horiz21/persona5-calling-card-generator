@@ -1,7 +1,8 @@
 from typing import List
 from math import ceil
 from PIL import Image, ImageDraw, ImageFont
-from random import random, randint, normalvariate, uniform
+from random import random, randint, gauss
+from utils import clip_gauss
 
 
 class Pattern:
@@ -33,7 +34,7 @@ class CharacterStyle:
     def __init__(
         self,
         basesize: int = 24,
-        rotate_sigma: float = 2,
+        rotate_sigma: float = 1.5,
         stretch: float | List[float] = [0.2, 0.4],
         swapcase_rate: float = 0.25,
     ):
@@ -58,9 +59,7 @@ class Character:
         self.character = character
         self.style = style
         self.pattern = pattern
-        self.random_size = float(style.size) * max(
-            0.75, min(normalvariate(1, 0.1), 1.25)
-        )
+        self.random_size = float(style.size) * clip_gauss(0.8, 1.2)
 
     def generate(
         self,
@@ -110,7 +109,10 @@ class Character:
         ]
 
         random_offsets = [
-            (uniform(0, horizontal_stretch), uniform(0, vertical_stretch))
+            (
+                clip_gauss(0, horizontal_stretch),
+                clip_gauss(0, vertical_stretch),
+            )
             for _ in range(4)
         ]
 
@@ -124,7 +126,7 @@ class Character:
 
         draw_mask.polygon(corners, fill=0xFF)
         crop_zone = self.mask.getbbox()
-        degree = normalvariate(sigma=self.style.rotate_sigma)
+        degree = gauss(sigma=self.style.rotate_sigma)
 
         self.image = self.image.crop(crop_zone).rotate(degree, expand=True)
         self.mask = self.mask.crop(crop_zone).rotate(degree, expand=True)
