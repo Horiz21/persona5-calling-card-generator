@@ -14,6 +14,30 @@ def clip_gauss(start: float, end: float):
     )
 
 
+class OverlayMaker:
+    def __init__(self, layers, colors):
+        num = len(layers)
+        size = Image.open(layers[0]).size
+        self.image = Image.new("RGBA", size, (0, 0, 0, 0))
+        for i in range(num):
+            self.image.paste(
+                im=Image.new("RGB", size, colors[i]),
+                mask=Image.open(layers[i]),
+            )
+
+    def get_resized_overlay(self, size: tuple):
+        width_resize_ratio = size[0] / self.image.width
+        height_resize_ratio = size[1] / self.image.height
+        final_resize_ratio = min(width_resize_ratio, height_resize_ratio)
+        return self.image.resize(
+            (
+                int(self.image.width * final_resize_ratio),
+                int(self.image.height * final_resize_ratio),
+            ),
+            resample=Image.LANCZOS,
+        )
+
+
 class FontManager:
     def __init__(self, fonts_root: str):
         self.fonts_path = [

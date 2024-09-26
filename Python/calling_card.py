@@ -4,6 +4,8 @@ from typing import List
 from math import ceil, sqrt
 from PIL import Image, ImageDraw
 from paragraph import Paragraph
+from copy import deepcopy
+from utils import OverlayMaker
 
 
 class CardBackground:
@@ -11,9 +13,11 @@ class CardBackground:
         self,
         radii: List[float] = [260, 320],
         colors: List[str] = ["#F00", "#000"],
+        dots: bool = True,
     ):
         self.radii = radii
         self.colors = colors
+        self.dots = dots
 
     def generate(self, width: int, height: int):
         self.image = Image.new("RGB", (width, height))
@@ -41,6 +45,16 @@ class CardBackground:
             )
             multipliers[~multipliers[::-1].index(max(multipliers[::-1]))] -= 1
 
+        if self.dots:
+            dots_maker = OverlayMaker(
+                layers=["image/dots.png"],
+                colors=[self.colors[-1]],
+            )
+            dots = dots_maker.get_resized_overlay((width, height))
+            left = (width - dots.width) // 2
+            top = height - dots.height  # Stay bottom
+            self.image.paste(dots, (left, top), dots)
+
 
 class CallingCard:
     def __init__(
@@ -51,11 +65,13 @@ class CallingCard:
         background: CardBackground,
         paragraphs: List[Paragraph],
         fonts_path: str,
+        gen_back: bool = False,
         antialias: int = 2,
         version: str = "V1.1(CLI)",
         watermark: bool = True,
         font_check: bool = False,
     ):
+        self.gen_back = gen_back
         self.antialias = antialias
         self.set_width = set_width
         self.set_height = set_height
@@ -105,6 +121,11 @@ class CallingCard:
         self.font_check = font_check
 
     def generate(self):
+        self.generate_face()
+        if self.gen_back:
+            self.generate_back()
+
+    def generate_face(self):
         for paragraph in self.paragraphs:
             paragraph.generate(
                 content_max_width=self.content_max_width,
@@ -135,7 +156,7 @@ class CallingCard:
                 total_mask.paste(mask, (posx, nowy))
                 nowy += image.height
 
-        image = self.background.image
+        image = deepcopy(self.background.image)
         image.paste(total_image, (self.padding[0], self.padding[1]), total_mask)
         image = image.resize(
             (self.set_width, self.set_height),
@@ -155,16 +176,41 @@ By using P5CCG, users accept responsibility for how this image is utilized and a
                 image,
             )
 
-        self.image = image
+        self.face = image
+
+    def generate_back(self):
+        logo_maker = OverlayMaker(
+            layers=[
+                "image/back_white.png",
+                "image/back_black.png",
+                "image/back_red.png",
+            ],
+            colors=[
+                "#FFF",
+                self.background.colors[-1],
+                self.background.colors[-2],
+            ],
+        )
+
+        self.back = deepcopy(self.background.image)
+        logo = logo_maker.get_resized_overlay(self.back.size)
+        left = (self.back.width - logo.width) // 2
+        top = (self.back.height - logo.height) // 2
+        self.back.paste(logo, (left, top), logo)
 
     def save(
         self,
         path: str = "",
         name: str = "persona5_card.png",
     ):
-        self.image.save(os.path.join(path, name))
+        self.face.save(os.path.join(path, name))
+        if self.gen_back:
+            name_parts = name.split(".")
+            file_name = ".".join(name_parts[:-1])
+            file_extension = name_parts[-1]
+            self.back.save(os.path.join(path, f"{file_name} (back).{file_extension}"))
 
     def tobyte(self):
         img_byte_arr = io.BytesIO()
-        self.image.save(img_byte_arr, format="PNG")
+        self.face.save(img_byte_arr, format="PNG")
         return img_byte_arr.getvalue()

@@ -45,6 +45,7 @@ def main():
         fonts_path="default",
         antialias=2,
         font_check=True,
+        gen_back=True,
     )
     card.generate()
     card.save("", "p5card.png")
