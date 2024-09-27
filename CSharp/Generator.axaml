@@ -43,46 +43,30 @@
                     <!--基本-->
                     <Image Source="../Assets/Images/caption_basic.png" Height="40" HorizontalAlignment="Left" />
                     <Grid RowDefinitions="35 35" ColumnDefinitions="80 300 50">
-                        <Label Grid.Row="0" Grid.Column="0" Content="图像比例" HorizontalAlignment="Center"
-                               VerticalAlignment="Center" />
-                        <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" ColumnDefinitions="* * * * *">
-                            <local:Persona5StyledRadioButton x:Name="Ratio01"
-                                                             Grid.Column="0" GroupName="ImageRatio"
-                                                             ControlTextContent="√2:1"
-                                                             RadioButtonIsChecked="True"
-                                                             ToolTip.Tip="√2:1 是常见纸张的比例，适用于包括 A4、A5、B5 在内的标准尺寸的纸张" />
-                            <local:Persona5StyledRadioButton x:Name="Ratio02"
-                                                             Grid.Column="1" GroupName="ImageRatio"
-                                                             ControlTextContent="16:9"
-                                                             ToolTip.Tip="16:9 是当今标准宽屏显示器的比例，也是如今手机、数码相机摄影常用的比例之一" />
-                            <local:Persona5StyledRadioButton x:Name="Ratio03"
-                                                             Grid.Column="2" GroupName="ImageRatio"
-                                                             ControlTextContent="4:3"
-                                                             ToolTip.Tip="4:3 是过去显示器的常见比例，也是如今手机、数码相机摄影常用的比例之一" />
-                            <local:Persona5StyledRadioButton x:Name="Ratio04"
-                                                             Grid.Column="3" GroupName="ImageRatio"
-                                                             ControlTextContent="3:2"
-                                                             ToolTip.Tip="3:2 是 35 毫米胶片用于静物拍摄的比例，也是常见的照片的印刷比例，适用于包括 5 吋、6 吋在内的照片印制" />
-                            <local:Persona5StyledRadioButton x:Name="RatioAuto"
-                                                             Grid.Column="4" GroupName="ImageRatio"
-                                                             ControlTextContent="自动"
-                                                             ToolTip.Tip="以 3840 像素作为宽度，高度根据内容自适应" />
-                        </Grid>
-                        <Label Grid.Row="1"
-                               Grid.Column="0"
+                        <Label Grid.Row="0" Grid.Column="0"
                                Content="字体目录"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center" />
                         <local:Persona5StyledTextBox x:Name="FontFolderPath"
-                                                     Grid.Row="1" Grid.Column="1" />
+                                                     Grid.Row="0" Grid.Column="1" />
                         <local:Persona5StyleButton x:Name="FontFolderButton"
-                                                   Grid.Row="1" Grid.Column="2"
+                                                   Grid.Row="0" Grid.Column="2"
                                                    ControlTextContent="选择"
                                                    IsTextMode="True"
                                                    ToolTip.Tip="选择一个包含 TrueType (.ttf)、OpenType (.otf) 格式字体的目录。若留空，将尝试访问 Windows 系统的用户本地字体目录。" />
+
+                        <Label Grid.Row="1" Grid.Column="0"
+                               Content="高级设定"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                        <Grid x:Name="AdvancedGrid"
+                              Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                              ColumnDefinitions="* * * *" />
                     </Grid>
+
                     <!--色彩-->
-                    <Grid ColumnDefinitions="* 40">
+                    <Grid x:Name="ColorGrid"
+                          ColumnDefinitions="* 40">
                         <Image Source="../Assets/Images/caption_color.png" Height="40" HorizontalAlignment="Left" />
                         <local:Persona5StyleButton x:Name="ColorButton"
                                                    Grid.Column="1"
@@ -90,7 +74,8 @@
                                                    HoverImage="../Assets/Images/button_add_hover.png"
                                                    PressedImage="../Assets/Images/button_add_pressed.png" />
                     </Grid>
-                    <ScrollViewer Height="105">
+                    <ScrollViewer x:Name="ColorScrollViewer"
+                                  Height="105">
                         <StackPanel x:Name="ColorStackPanel">
                             <Grid ColumnDefinitions="80 * 210 * 85 * 40" Height="35">
                                 <Label Grid.Column="0" Content="颜色预览" HorizontalAlignment="Center"
@@ -117,7 +102,8 @@
                                                    HoverImage="../Assets/Images/button_add_hover.png"
                                                    PressedImage="../Assets/Images/button_add_pressed.png" />
                     </Grid>
-                    <ScrollViewer Height="175">
+                    <ScrollViewer x:Name="ContentScrollViewer"
+                                  Height="175">
                         <StackPanel x:Name="ContentStackPanel">
                             <Grid ColumnDefinitions="80 195 * 50 * 50 * 40" Height="35">
                                 <Label Grid.Column="0" Content="段落文本"

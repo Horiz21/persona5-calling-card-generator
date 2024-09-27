@@ -92,8 +92,8 @@
       <DependentUpon>Persona5StyledTextBox.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="CSharp\Persona5StyledToggleButton.axaml.cs">
-      <DependentUpon>Persona5StyledToggleButton.axaml</DependentUpon>
+    <Compile Update="CSharp\Persona5MultiStateButton.axaml.cs">
+      <DependentUpon>Persona5MultiStateButton.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

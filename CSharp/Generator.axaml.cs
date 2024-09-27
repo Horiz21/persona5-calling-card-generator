@@ -6,6 +6,7 @@ using Avalonia.Platform.Storage;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,57 @@ public partial class Generator : Window
     {
         InitializeComponent();
 
+        // Advanced Grid
+        var ratioButton = new Persona5StyledMultiStateButton
+        {
+            ControlTextContents = new List<string> { "√2:1", "16:9", "4:3", "3:2", "自动高度" },
+            IsTextMode = true,
+        };
+        ToolTip.SetTip(ratioButton,
+            new ToolTip
+            {
+                Content =
+                    "√2:1：常见纸张的比例，适用于包括 A4、A5、B5 在内的标准尺寸的纸张。\n16:9：标准宽屏显示器的比例，也是如今手机、数码相机摄影常用的比例之一。\n4:3：过去显示器的常见比例，也是如今手机、数码相机摄影常用的比例之一。\n3:2：35 毫米胶片用于静物拍摄的比例，也是常见的照片的印刷比例，适用于包括 5 吋、6 吋在内的照片印制。\n自动高度：以 3840 像素作为宽度，高度根据内容自适应。"
+            });
+        AdvancedGrid.Children.Add(ratioButton);
+        Grid.SetColumn(ratioButton, 0);
+
+        var customColorButton = new Persona5StyledMultiStateButton
+        {
+            ControlTextContents = new List<string> { "默认配色", "自定义配色" },
+            IsTextMode = true,
+        };
+        EditColorGrid(0);
+        ToolTip.SetTip(customColorButton,
+            new ToolTip { Content = "默认配色：P5CCG 将使用 Persona 5 原版的配色风格生成预告信背景。\n自定义配色：可自由设定同心圆背景各个圆环的半径与色彩。" });
+        customColorButton.Click += (_, _) => EditColorGrid(customColorButton.GetCurrentState());
+        AdvancedGrid.Children.Add(customColorButton);
+        Grid.SetColumn(customColorButton, 1);
+
+        var dotButton = new Persona5StyledMultiStateButton
+        {
+            ControlTextContents = new List<string> { "生成墨渍", "关闭墨渍" },
+            IsTextMode = true
+        };
+        AdvancedGrid.Children.Add(dotButton);
+        ToolTip.SetTip(dotButton,
+            new ToolTip { Content = "生成墨渍：P5CCG 将使用 Persona 5 原版的墨渍效果点缀预告信。\n关闭墨渍：P5CCG 将生成干净清爽的预告信。" });
+        Grid.SetColumn(dotButton, 2);
+
+        var backButton = new Persona5StyledMultiStateButton
+        {
+            ControlTextContents = new List<string> { "生成正面", "生成双面" },
+            IsTextMode = true
+        };
+        AdvancedGrid.Children.Add(backButton);
+        ToolTip.SetTip(backButton,
+            new ToolTip
+            {
+                Content =
+                    "生成正面：P5CCG 将仅生成 Persona 5 预告信的正面。\n生成双面：P5CCG 将同时生成 Persona 5 预告信的正面与绘有心之怪盗团徽标的背面。生成的背面不会展示，仅在导出时一并保存。"
+            });
+        Grid.SetColumn(backButton, 3);
+
         // Basic Button Click Events
         ColorButton.Click += AddRowForColor;
         ContentButton.Click += AddRowForContent;
@@ -34,12 +86,28 @@ public partial class Generator : Window
 
         HelpButton.Click += ShowHelpMessage;
 
-
         HideWindowButton.Click += (_, _) => WindowState = Minimized;
         CloseWindowButton.Click += (_, _) => Close();
         AddRowForColor("#FF0000", 260);
         AddRowForColor("#000000", 320);
         AddRowForContent();
+    }
+
+    private void EditColorGrid(int mode)
+    {
+        switch (mode)
+        {
+            case 0:
+                ColorGrid.IsVisible = false;
+                ColorScrollViewer.IsVisible = false;
+                ContentScrollViewer.Height = 320;
+                break;
+            case 1:
+                ColorGrid.IsVisible = true;
+                ColorScrollViewer.IsVisible = true;
+                ContentScrollViewer.Height = 175;
+                break;
+        }
     }
 
     private void ShowHelpMessage(object? sender, EventArgs e)
@@ -199,18 +267,14 @@ public partial class Generator : Window
         var contentTextBox = new Persona5StyledTextBox();
         if (content.Length > 0) contentTextBox.Text = content;
         contentTextBox.Watermark = "单击此处键入您的文本";
-        var fontsizeButton = new Persona5StyledToggleButton
+        var fontsizeButton = new Persona5StyledMultiStateButton
         {
-            ControlTextContent01 = "小",
-            ControlTextContent02 = "中",
-            ControlTextContent03 = "大",
+            ControlTextContents = new List<string> { "小", "中", "大" },
             IsTextMode = true
         };
-        var alignmentButton = new Persona5StyledToggleButton
+        var alignmentButton = new Persona5StyledMultiStateButton
         {
-            ControlTextContent01 = "左",
-            ControlTextContent02 = "中",
-            ControlTextContent03 = "右",
+            ControlTextContents = new List<string> { "左", "中", "右" },
             IsTextMode = true
         };
         var deleteButton = new Persona5StyleButton
@@ -254,7 +318,8 @@ public partial class Generator : Window
 
         var jsonMap = new JObject
         {
-            ["ratio"] = GetSelectedRatio(),
+            ["ratio"] = GetButtonState(AdvancedGrid.Children[0] as Persona5StyledMultiStateButton,
+                new string[] { "sqrt2:1", "16:9", "4:3", "3:2", "auto" }),
             ["font_path"] = FontFolderPath.Text,
             ["colors"] = GetColorsAndRadii(),
             ["paragraphs"] = GetContents(),
@@ -351,32 +416,37 @@ public partial class Generator : Window
         }
     }
 
-    private string GetSelectedRatio()
-    {
-        if ((bool)Ratio01.MainRadioButton.IsChecked!) return "sqrt2:1";
-        if ((bool)Ratio02.MainRadioButton.IsChecked!) return "16:9";
-        if ((bool)Ratio03.MainRadioButton.IsChecked!) return "4:3";
-        if ((bool)Ratio04.MainRadioButton.IsChecked!) return "3:2";
-        return "auto";
-    }
-
     private JArray GetColorsAndRadii()
     {
         var colorsAndRadii = new JArray();
-        foreach (var child in ColorStackPanel.Children.Skip(1))
+        if ((AdvancedGrid.Children[1] as Persona5StyledMultiStateButton)!.GetCurrentState() == 0)
         {
-            if (child is not Grid grid) continue;
-            var flagIllegal = (grid.Children[0] as Persona5StyledTextBox)!.ControlTextBox.Text != string.Empty;
-            var hex = (grid.Children[1] as Persona5StyledTextBox)!.ControlTextBox.Text;
-            var isValidInteger = int.TryParse((grid.Children[2] as Persona5StyledTextBox)!.ControlTextBox.Text,
-                out var radius);
-            if (flagIllegal || !isValidInteger || radius <= 0) return [];
             colorsAndRadii.Add(new JObject
             {
-                { "hex", hex },
-                { "radius", radius }
+                { "hex", "#FF0000" },
+                { "radius", 260 }
+            });
+            colorsAndRadii.Add(new JObject
+            {
+                { "hex", "#000000" },
+                { "radius", 320 }
             });
         }
+        else
+            foreach (var child in ColorStackPanel.Children.Skip(1))
+            {
+                if (child is not Grid grid) continue;
+                var flagIllegal = (grid.Children[0] as Persona5StyledTextBox)!.ControlTextBox.Text != string.Empty;
+                var hex = (grid.Children[1] as Persona5StyledTextBox)!.ControlTextBox.Text;
+                var isValidInteger = int.TryParse((grid.Children[2] as Persona5StyledTextBox)!.ControlTextBox.Text,
+                    out var radius);
+                if (flagIllegal || !isValidInteger || radius <= 0) return [];
+                colorsAndRadii.Add(new JObject
+                {
+                    { "hex", hex },
+                    { "radius", radius }
+                });
+            }
 
         return colorsAndRadii;
     }
@@ -388,8 +458,10 @@ public partial class Generator : Window
         {
             if (child is not Grid grid) continue;
             var content = grid.Children[0].FindControl<TextBox>("ControlTextBox")?.Text ?? string.Empty;
-            var fontsize = GetToggleButtonState(grid.Children[1] as Persona5StyledToggleButton, "S", "M", "L");
-            var alignment = GetToggleButtonState(grid.Children[2] as Persona5StyledToggleButton, "L", "C", "R");
+            var fontsize = GetButtonState(grid.Children[1] as Persona5StyledMultiStateButton,
+                new[] { "S", "M", "L" });
+            var alignment = GetButtonState(grid.Children[2] as Persona5StyledMultiStateButton,
+                new[] { "L", "C", "R" });
 
             contents.Add(new JObject
             {
@@ -402,16 +474,8 @@ public partial class Generator : Window
         return contents;
     }
 
-    private static string GetToggleButtonState(Persona5StyledToggleButton? button, string state1, string state2,
-        string state3)
-    {
-        return button?.currentState switch
-        {
-            1 => state1,
-            2 => state2,
-            _ => state3,
-        };
-    }
+    private static string GetButtonState(Persona5StyledMultiStateButton? button, IReadOnlyList<string> states) =>
+        states[button!.GetCurrentState()];
 
     private static string Escape(string str)
     {
