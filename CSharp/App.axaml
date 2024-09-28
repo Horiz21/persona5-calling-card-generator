@@ -6,7 +6,7 @@
 	<Application.Styles>
 		<SimpleTheme />
 		<Style Selector="Window">
-			<Setter Property="FontFamily" Value="../Assets/Fonts/SourceHanSansSC-Regular.otf#Source Han Sans SC"/>
+			<Setter Property="FontFamily" Value="../Assets/Fonts/SourceHanSansCN-Regular.otf#Source Han Sans CN"/>
 			<Setter Property="FontSize" Value="14"/>
 		</Style>
 	</Application.Styles>

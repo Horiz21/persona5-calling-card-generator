@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -20,7 +21,8 @@ namespace P5CCG;
 
 public partial class Generator : Window
 {
-    private MemoryStream? _generatedCallingCardStream;
+    private MemoryStream? _generatedCardFaceStream;
+    private MemoryStream? _generatedCardBackStream;
 
     public Generator()
     {
@@ -29,14 +31,14 @@ public partial class Generator : Window
         // Advanced Grid
         var ratioButton = new Persona5StyledMultiStateButton
         {
-            ControlTextContents = new List<string> { "√2:1", "16:9", "4:3", "3:2", "自动高度" },
+            ControlTextContents = new List<string> { "√2:1", "16:9", "4:3", "3:2", "自动" },
             IsTextMode = true,
         };
         ToolTip.SetTip(ratioButton,
             new ToolTip
             {
                 Content =
-                    "√2:1：常见纸张的比例，适用于包括 A4、A5、B5 在内的标准尺寸的纸张。\n16:9：标准宽屏显示器的比例，也是如今手机、数码相机摄影常用的比例之一。\n4:3：过去显示器的常见比例，也是如今手机、数码相机摄影常用的比例之一。\n3:2：35 毫米胶片用于静物拍摄的比例，也是常见的照片的印刷比例，适用于包括 5 吋、6 吋在内的照片印制。\n自动高度：以 3840 像素作为宽度，高度根据内容自适应。"
+                    "√2:1：常见纸张的比例，适用于包括 A4、A5、B5 在内的标准尺寸的纸张。\n16:9：标准宽屏显示器的比例，也是如今手机、数码相机摄影常用的比例之一。\n4:3：过去显示器的常见比例，也是如今手机、数码相机摄影常用的比例之一。\n3:2：35 毫米胶片用于静物拍摄的比例，也是常见的照片的印刷比例，适用于包括 5 吋、6 吋在内的照片印制。\n自动：以 3840 像素作为宽度，高度根据内容自适应。"
             });
         AdvancedGrid.Children.Add(ratioButton);
         Grid.SetColumn(ratioButton, 0);
@@ -119,7 +121,7 @@ public partial class Generator : Window
         {
             try
             {
-                var reply = new Ping().Send("google.com", 1000, "horiz"u8.ToArray());
+                var reply = new Ping().Send("google.com", 1000, "Horiz21"u8.ToArray());
                 var networkState = reply.Status == IPStatus.Success ? "en" : "cn";
 
                 var json = await App.FetchJsonAsync(
@@ -312,18 +314,28 @@ public partial class Generator : Window
     private void AddRowForColor(object? sender, EventArgs e) => AddRowForColor("#FF0000", 260);
     private void AddRowForContent(object? sender, EventArgs e) => AddRowForContent();
 
+    private static readonly string[] RatioArray = ["sqrt2:1", "16:9", "4:3", "3:2", "auto"];
+    private static readonly string[] DotsArray = ["dots", "no_dots"];
+    private static readonly string[] SidesArray = ["face", "face_and_back"];
+    private static readonly string[] FontSizeArray = ["S", "M", "L"];
+    private static readonly string[] AlignmentArray = ["L", "C", "R"];
+
     private async void GenerateCallingCardAsync(object? sender, EventArgs e)
     {
+        _generatedCardFaceStream?.SetLength(0);
+        _generatedCardBackStream?.SetLength(0);
         GeneratedImage.Source = new Bitmap(AssetLoader.Open(new Uri("avares://P5CCG/Assets/Images/default_light.png")));
-
+        
         var jsonMap = new JObject
         {
-            ["ratio"] = GetButtonState(AdvancedGrid.Children[0] as Persona5StyledMultiStateButton,
-                new string[] { "sqrt2:1", "16:9", "4:3", "3:2", "auto" }),
-            ["font_path"] = FontFolderPath.Text,
+            ["ratio"] = GetButtonState(AdvancedGrid.Children[0] as Persona5StyledMultiStateButton, RatioArray),
+            ["font_path"] = string.IsNullOrEmpty(FontFolderPath.Text) ? "default" : FontFolderPath.Text,
             ["colors"] = GetColorsAndRadii(),
             ["paragraphs"] = GetContents(),
             ["version"] = App.Version,
+            ["dots"] = GetButtonState(AdvancedGrid.Children[2] as Persona5StyledMultiStateButton, DotsArray),
+            ["sides"] = GetButtonState(AdvancedGrid.Children[3] as Persona5StyledMultiStateButton, SidesArray),
+            ["trigger"] = "avalonia"
         };
 
         if (!jsonMap["colors"]!.Any())
@@ -344,32 +356,39 @@ public partial class Generator : Window
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            CreateNoWindow = true
+            CreateNoWindow = true,
+            WorkingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
         };
-
-        process.Start();
         try
         {
-            using var outputStream = new MemoryStream();
-            await process.StandardOutput.BaseStream.CopyToAsync(outputStream);
+            process.Start();
+            var output = await process.StandardOutput.ReadToEndAsync();
+            Debug.WriteLine(output);
             await process.WaitForExitAsync();
 
-            outputStream.Position = 0;
-            GeneratedImage.Source = new Bitmap(outputStream);
-            _generatedCallingCardStream = new MemoryStream(outputStream.ToArray());
+            var json = JObject.Parse(output);
+            var faceBase64 = json["face"]!.ToString();
+            var faceBytes = Convert.FromBase64String(faceBase64);
+            _generatedCardFaceStream = new MemoryStream(faceBytes);
+            GeneratedImage.Source = new Bitmap(_generatedCardFaceStream);
+
+            if ((AdvancedGrid.Children[3] as Persona5StyledMultiStateButton)!.GetCurrentState() == 0) return;
+            var backBase64 = json["back"]!.ToString();
+            var backBytes = Convert.FromBase64String(backBase64);
+            _generatedCardBackStream = new MemoryStream(backBytes);
         }
         catch
         {
             Debug.WriteLine(escapedArgs);
             var dialog = new Persona5StyledDialog(this,
-                "P5CCG 遇到问题，无法生成，请检查：\n1. 字体目录是否存在且可访问（由于系统限制，P5CCG 可能无法访问系统字体目录，建议自建字体目录）\n2. 字体目录中是否有且仅有 .ttf 和 .otf 格式字体文件");
+                "P5CCG 遇到问题，无法生成，请检查字体目录是否存在且目录中有 .ttf/.ttc/.otf 字体文件。");
             await dialog.ShowDialog(this);
         }
     }
 
     private async void ExportCallingCardAsync(object? sender, EventArgs e)
     {
-        if (_generatedCallingCardStream == null || _generatedCallingCardStream.Length == 0)
+        if (_generatedCardFaceStream == null || _generatedCardFaceStream.Length == 0)
         {
             var dialog = new Persona5StyledDialog(this, "导出失败！\n没有可供导出的图像数据，请先使用生成功能生成并预览，再进行导出。");
             await dialog.ShowDialog(this);
@@ -387,27 +406,43 @@ public partial class Generator : Window
 
         var options = new FilePickerSaveOptions
         {
-            Title = "保存 PNG 文件",
+            Title = "保存预告信正面 PNG 文件",
             DefaultExtension = ".png",
-            SuggestedFileName = "calling_card.png",
+            SuggestedFileName = "Calling Card.png",
             FileTypeChoices = new[] { fileTypes }
         };
 
         var file = await storageProvider?.SaveFilePickerAsync(options)!;
+        if (file != null) await SavePngFileAsync(file, 0);
 
-        if (file != null)
+        if ((AdvancedGrid.Children[3] as Persona5StyledMultiStateButton)!.GetCurrentState() == 0) return;
+        var optionsBack = new FilePickerSaveOptions
         {
-            await SavePngFileAsync(file);
-        }
+            Title = "保存预告信背面 PNG 文件",
+            DefaultExtension = ".png",
+            SuggestedFileName = "Calling Card (Back).png",
+            FileTypeChoices = new[] { fileTypes }
+        };
+        var fileBack = await storageProvider?.SaveFilePickerAsync(optionsBack)!;
+        if (fileBack != null) await SavePngFileAsync(fileBack, 1);
     }
 
-    private async Task SavePngFileAsync(IStorageFile file)
+    private async Task SavePngFileAsync(IStorageFile file, int side)
     {
         try
         {
-            _generatedCallingCardStream!.Position = 0;
-            await using var fileStream = await file.OpenWriteAsync();
-            await _generatedCallingCardStream.CopyToAsync(fileStream);
+            if (side == 0)
+            {
+                _generatedCardFaceStream!.Position = 0;
+                await using var fileStream = await file.OpenWriteAsync();
+                await _generatedCardFaceStream.CopyToAsync(fileStream);
+            }
+            else // side == 1
+            {
+                _generatedCardBackStream!.Position = 0;
+                await using var fileStream = await file.OpenWriteAsync();
+                await _generatedCardBackStream.CopyToAsync(fileStream);
+            }
         }
         catch (Exception ex)
         {
@@ -458,10 +493,8 @@ public partial class Generator : Window
         {
             if (child is not Grid grid) continue;
             var content = grid.Children[0].FindControl<TextBox>("ControlTextBox")?.Text ?? string.Empty;
-            var fontsize = GetButtonState(grid.Children[1] as Persona5StyledMultiStateButton,
-                new[] { "S", "M", "L" });
-            var alignment = GetButtonState(grid.Children[2] as Persona5StyledMultiStateButton,
-                new[] { "L", "C", "R" });
+            var fontsize = GetButtonState(grid.Children[1] as Persona5StyledMultiStateButton, FontSizeArray);
+            var alignment = GetButtonState(grid.Children[2] as Persona5StyledMultiStateButton, AlignmentArray);
 
             contents.Add(new JObject
             {
@@ -477,32 +510,24 @@ public partial class Generator : Window
     private static string GetButtonState(Persona5StyledMultiStateButton? button, IReadOnlyList<string> states) =>
         states[button!.GetCurrentState()];
 
-    private static string Escape(string str)
+    private readonly Dictionary<char, string> _escapeSequences = new()
+    {
+        { '"', "\\\"" },
+        { '\'', "\\'" },
+        { '\n', "\\n" },
+        { '\r', "\\r" },
+        { '\t', "\\t" }
+    };
+
+    private string Escape(string str)
     {
         var sb = new StringBuilder();
         foreach (var c in str)
         {
-            switch (c)
-            {
-                case '"':
-                    sb.Append("\\\"");
-                    break;
-                case '\'':
-                    sb.Append(@"\'");
-                    break;
-                case '\n':
-                    sb.Append(@"\n");
-                    break;
-                case '\r':
-                    sb.Append(@"\r");
-                    break;
-                case '\t':
-                    sb.Append(@"\t");
-                    break;
-                default:
-                    sb.Append(c);
-                    break;
-            }
+            if (_escapeSequences.TryGetValue(c, out var escaped))
+                sb.Append(escaped);
+            else
+                sb.Append(c);
         }
 
         return sb.ToString();

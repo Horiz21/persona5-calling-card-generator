@@ -105,6 +105,8 @@ P5CCG 的图像生成功能由 Python 脚本提供。对于熟悉 Python 或愿�
 
 ## 许可证
 
+### P5CCG (本仓库)
+
 ```text
 MIT License
 
@@ -128,3 +130,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+### 字体
+
+1. **Source Han Sans**: SIL Open Font License, Version 1.1. More info [here](https://github.com/adobe-fonts/source-han-sans).
+2. **Source Han Serif**: SIL Open Font License, Version 1.1. More info [here](https://github.com/adobe-fonts/source-han-serif).

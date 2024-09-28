@@ -1,11 +1,13 @@
 import io
 import os
+import json
 from typing import List
 from math import ceil, sqrt
 from PIL import Image, ImageDraw
 from paragraph import Paragraph
 from copy import deepcopy
 from utils import OverlayMaker
+import base64
 
 
 class CardBackground:
@@ -19,7 +21,7 @@ class CardBackground:
         self.colors = colors
         self.dots = dots
 
-    def generate(self, width: int, height: int):
+    def generate(self, width: int, height: int, trigger: str = "python"):
         self.image = Image.new("RGB", (width, height))
         draw = ImageDraw.Draw(self.image)
 
@@ -47,7 +49,9 @@ class CardBackground:
 
         if self.dots:
             dots_maker = OverlayMaker(
-                layers=["image/dots.png"],
+                layers=[
+                    ("../" if trigger == "python" else "./") + "Assets/Images/dots.png"
+                ],
                 colors=[self.colors[-1]],
             )
             dots = dots_maker.get_resized_overlay((width, height))
@@ -70,9 +74,11 @@ class CallingCard:
         version: str = "V1.1(CLI)",
         watermark: bool = True,
         font_check: bool = False,
+        trigger: str = "python",
     ):
         self.gen_back = gen_back
         self.antialias = antialias
+        self.trigger = trigger
         self.set_width = set_width
         self.set_height = set_height
         self.auto_height = set_height <= 0
@@ -113,7 +119,7 @@ class CallingCard:
             elif system == "Linux":
                 fonts_path = "/usr/share/fonts"
             else:
-                fonts_path = "../Assets/Fonts"
+                fonts_path = "../Fonts" if trigger == "python" else "./Fonts"
         self.fonts_path = fonts_path
 
         self.version = version
@@ -136,7 +142,7 @@ class CallingCard:
         if self.auto_height:
             self.image_height = content_height + self.padding[1] + self.padding[3]
             self.set_height = self.image_height // self.antialias
-        self.background.generate(self.image_width, self.image_height)
+        self.background.generate(self.image_width, self.image_height, self.trigger)
 
         total_image = Image.new("L", (self.content_max_width, content_height), 0)
         total_mask = Image.new("L", (self.content_max_width, content_height), 0)
@@ -179,16 +185,21 @@ By using P5CCG, users accept responsibility for how this image is utilized and a
         self.face = image
 
     def generate_back(self):
+        pre_path = ("../" if self.trigger == "python" else "./") + "Assets/Images/"
         logo_maker = OverlayMaker(
             layers=[
-                "image/back_white.png",
-                "image/back_black.png",
-                "image/back_red.png",
+                pre_path + "back_white.png",
+                pre_path + "back_black.png",
+                pre_path + "back_red.png",
             ],
             colors=[
                 "#FFF",
                 self.background.colors[-1],
-                self.background.colors[-2],
+                (
+                    "#000"
+                    if len(self.background.colors) < 2
+                    else self.background.colors[-2]
+                ),
             ],
         )
 
@@ -211,6 +222,23 @@ By using P5CCG, users accept responsibility for how this image is utilized and a
             self.back.save(os.path.join(path, f"{file_name} (back).{file_extension}"))
 
     def tobyte(self):
-        img_byte_arr = io.BytesIO()
-        self.face.save(img_byte_arr, format="PNG")
-        return img_byte_arr.getvalue()
+        img_byte_arr_face = io.BytesIO()
+        img_byte_arr_back = io.BytesIO()
+
+        self.face.save(img_byte_arr_face, format="PNG")
+        if self.gen_back:
+            self.back.save(img_byte_arr_back, format="PNG")
+
+        face_bytes = img_byte_arr_face.getvalue()
+        back_bytes = img_byte_arr_back.getvalue() if self.gen_back else None
+
+        return json.dumps(
+            {
+                "face": base64.b64encode(face_bytes).decode("utf-8"),
+                "back": (
+                    base64.b64encode(back_bytes).decode("utf-8")
+                    if self.gen_back
+                    else None
+                ),
+            }
+        )

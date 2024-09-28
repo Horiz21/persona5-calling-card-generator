@@ -1,111 +1,107 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <ApplicationIcon>Assets\p5ccg.ico</ApplicationIcon>
-    <Version>1.0</Version>
-    <Title>Persona 5 预告信生成器</Title>
-    <Authors>Horiz21</Authors>
-    <Company>Horiz21</Company>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <ApplicationIcon>Assets\p5ccg.ico</ApplicationIcon>
+        <Version>1.0</Version>
+        <Title>Persona 5 预告信生成器</Title>
+        <Authors>Horiz21</Authors>
+        <Company>Horiz21</Company>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Themes.Simple" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0" />
-    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <AvaloniaResource Include="Assets\**" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <AvaloniaResource Update="Assets\Images\block_left.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\Images\block_middle.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\Images\block_right.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\Images\caption_hover_generate.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\Images\caption_hover_save.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\Images\caption_normal_about.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\Images\caption_normal_basic.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\Images\caption_normal_color.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\Images\caption_normal_content.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\Images\caption_normal_generate.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\Images\caption_normal_save.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaResource>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Compile Update="CSharp\App.axaml.cs">
-      <DependentUpon>App.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="CSharp\Generator.axaml.cs">
-      <DependentUpon>Generator.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="CSharp\Peronsa5StyledRadioButton.axaml.cs">
-      <DependentUpon>Peronsa5StyledRadioButton.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="CSharp\Persona5QuadrilateralBackground.axaml.cs">
-      <DependentUpon>Persona5QuadrilateralBackground.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="CSharp\Persona5StyleButton.axaml.cs">
-      <DependentUpon>Persona5StyleButton.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="CSharp\Persona5StyledDialog.axaml.cs">
-      <DependentUpon>Persona5StyledDialog.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="CSharp\Persona5StyledTextBox.axaml.cs">
-      <DependentUpon>Persona5StyledTextBox.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="CSharp\Persona5MultiStateButton.axaml.cs">
-      <DependentUpon>Persona5MultiStateButton.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <None Remove="Python\"/>
-    <None Remove="Assets\Working\"/>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.1.0"/>
+        <PackageReference Include="Avalonia.Desktop" Version="11.1.0"/>
+        <PackageReference Include="Avalonia.Themes.Simple" Version="11.1.0"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0"/>
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="Assets\Binary\cli.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+    <ItemGroup>
+        <AvaloniaResource Include="Assets\p5ccg.ico"/>
+        <AvaloniaResource Include="Assets\Images\*.png"/>
+        <AvaloniaResource Include="Assets\Fonts\SourceHanSansCN-Regular.otf"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="CSharp\App.axaml.cs">
+            <DependentUpon>App.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="CSharp\Generator.axaml.cs">
+            <DependentUpon>Generator.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="CSharp\Peronsa5StyledRadioButton.axaml.cs">
+            <DependentUpon>Peronsa5StyledRadioButton.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="CSharp\Persona5QuadrilateralBackground.axaml.cs">
+            <DependentUpon>Persona5QuadrilateralBackground.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="CSharp\Persona5StyleButton.axaml.cs">
+            <DependentUpon>Persona5StyleButton.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="CSharp\Persona5StyledDialog.axaml.cs">
+            <DependentUpon>Persona5StyledDialog.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="CSharp\Persona5StyledTextBox.axaml.cs">
+            <DependentUpon>Persona5StyledTextBox.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="CSharp\Persona5MultiStateButton.axaml.cs">
+            <DependentUpon>Persona5MultiStateButton.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Python\"/>
+        <None Remove="Assets\Working\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="Assets\Binary\cli.exe">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <AdditionalFiles Include="Assets\Images\back_black.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </AdditionalFiles>
+        <AdditionalFiles Include="Assets\Images\back_red.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </AdditionalFiles>
+        <AdditionalFiles Include="Assets\Images\back_white.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </AdditionalFiles>
+        <AdditionalFiles Include="Assets\Images\dots.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </AdditionalFiles>
+        <AdditionalFiles Include="Assets\Images\front_black.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </AdditionalFiles>
+        <AdditionalFiles Include="Assets\Images\front_red.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </AdditionalFiles>
+        <AdditionalFiles Include="Assets\Images\front_white.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </AdditionalFiles>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <AdditionalFiles Include="Assets\Fonts\*.otf">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </AdditionalFiles>
+    </ItemGroup>
 </Project>

@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 import argparse
 
@@ -13,7 +12,6 @@ def main():
     parser.add_argument("--data", type=str, required=True)
     args = parser.parse_args()
     data = json.loads(args.data)
-    print(data)
 
     ## Get Image Ratio
     if data["ratio"] == "sqrt2:1":
@@ -28,12 +26,9 @@ def main():
         set_width, set_height = 3840, 0
 
     ## Get Font Path
-    font_path = data["font_path"]
-    if font_path is None or not os.path.exists(font_path) and os.path.isdir(font_path):
-        font_path = os.path.join(
-            os.path.expanduser("~"),
-            "AppData/Local/Microsoft/Windows/Fonts",
-        )
+    font_path = (
+        data["font_path"] if data["font_path"] != "default" else "./Assets/Fonts"
+    )
 
     ## Get Color
     radii = []
@@ -70,15 +65,22 @@ def main():
         set_width=set_width,
         set_height=set_height,
         padding=[200, 120, 200, 100],
-        background=CardBackground(radii=radii, colors=colors),
+        background=CardBackground(
+            radii=radii,
+            colors=colors,
+            dots=data["dots"] == "dots",
+        ),
         paragraphs=paragraphs,
         fonts_path=os.path.join(font_path),
         antialias=2,
         version=version,
         watermark=True,
+        gen_back=data["sides"] == "face_and_back",
+        trigger=data["trigger"],
     )
+
     card.generate()
-    sys.stdout.buffer.write(card.tobyte())
+    print(card.tobyte())
 
 
 if __name__ == "__main__":

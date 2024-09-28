@@ -61,7 +61,7 @@
                                VerticalAlignment="Center" />
                         <Grid x:Name="AdvancedGrid"
                               Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
-                              ColumnDefinitions="* * * *" />
+                              ColumnDefinitions="2* 3* 3* 3*" />
                     </Grid>
 
                     <!--色彩-->
@@ -124,9 +124,10 @@
                         </StackPanel>
                     </ScrollViewer>
                 </StackPanel>
+                
                 <!--右列-->
                 <Grid Grid.Column="2"
-                      RowDefinitions="Auto 10 *">
+                      RowDefinitions="376 10 *">
                     <Border BorderBrush="White"
                             BorderThickness="2"
                             MaxWidth="500"
