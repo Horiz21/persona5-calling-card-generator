@@ -39,16 +39,16 @@ class OverlayMaker:
 
 
 class FontManager:
-    def __init__(self, fonts_root: str):
-        self.fonts_path = [
-            os.path.join(fonts_root, font)
-            for font in os.listdir(fonts_root)
-            if os.path.join(fonts_root, font).lower().endswith((".ttc", ".ttf", ".otf"))
+    def __init__(self, font_directory: str):
+        self.fonts = [
+            os.path.join(font_directory, font)
+            for font in os.listdir(font_directory)
+            if font.lower().endswith((".ttc", ".ttf", ".otf"))
         ]
-        self.len = len(self.fonts_path)
+        self.len = len(self.fonts)
         if self.len == 0:
             raise ValueError(
-                f"The specified directory {fonts_root} does not contain any font files for the supported formats."
+                f"The specified directory {font_directory} does not contain any font files for the supported formats."
             )
         self.indexs = list(range(self.len))
 
@@ -60,7 +60,7 @@ class FontManager:
 
     def choice(self):
         index = choice(self.indexs)
-        return index, self.fonts_path[index]
+        return index, self.fonts[index]
 
 
 class Watermark:

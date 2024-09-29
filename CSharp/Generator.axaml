@@ -47,13 +47,13 @@
                                Content="字体目录"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center" />
-                        <local:Persona5StyledTextBox x:Name="FontFolderPath"
+                        <local:Persona5StyledTextBox x:Name="FontDirectoryTextBox"
                                                      Grid.Row="0" Grid.Column="1" />
-                        <local:Persona5StyleButton x:Name="FontFolderButton"
+                        <local:Persona5StyleButton x:Name="FontDirectoryButton"
                                                    Grid.Row="0" Grid.Column="2"
                                                    ControlTextContent="选择"
                                                    IsTextMode="True"
-                                                   ToolTip.Tip="选择一个包含 TrueType (.ttf)、OpenType (.otf) 格式字体的目录。若留空，将尝试访问 Windows 系统的用户本地字体目录。" />
+                                                   ToolTip.Tip="可手动设定包含 TrueType (.ttf) 或 OpenType (.otf) 格式字体的目录，留空则使用默认的思源字体。" />
 
                         <Label Grid.Row="1" Grid.Column="0"
                                Content="高级设定"

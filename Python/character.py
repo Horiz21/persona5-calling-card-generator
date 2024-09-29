@@ -109,10 +109,7 @@ class Character:
         ]
 
         random_offsets = [
-            (
-                clip_gauss(0, horizontal_stretch),
-                clip_gauss(0, vertical_stretch),
-            )
+            (clip_gauss(0, horizontal_stretch), clip_gauss(0, vertical_stretch))
             for _ in range(4)
         ]
 

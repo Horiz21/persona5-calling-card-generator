@@ -42,9 +42,9 @@ def main():
                 style=AUTHOR_PARAGRAPH,
             ),
         ],
-        fonts_path="default",
+        font_directory="default",
         antialias=2,
-        font_check=True,
+        font_format_check=True,
         gen_back=True,
     )
     card.generate()

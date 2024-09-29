@@ -26,8 +26,10 @@ def main():
         set_width, set_height = 3840, 0
 
     ## Get Font Path
-    font_path = (
-        data["font_path"] if data["font_path"] != "default" else "./Assets/Fonts"
+    font_directory = (
+        data["font_directory"]
+        if data["font_directory"] != "default"
+        else "./Assets/Fonts"
     )
 
     ## Get Color
@@ -47,10 +49,10 @@ def main():
                     align=paragraph["alignment"],
                     character_style=(
                         CharacterStyle(basesize=192, stretch=[0.2, 0.5])
-                        if paragraph["fontsize"] == "L"
+                        if paragraph["font_size"] == "L"
                         else (
                             CharacterStyle(basesize=128)
-                            if paragraph["fontsize"] == "M"
+                            if paragraph["font_size"] == "M"
                             else CharacterStyle(basesize=96)
                         )
                     ),
@@ -71,7 +73,7 @@ def main():
             dots=data["dots"] == "dots",
         ),
         paragraphs=paragraphs,
-        fonts_path=os.path.join(font_path),
+        font_directory=os.path.join(font_directory),
         antialias=2,
         version=version,
         watermark=True,

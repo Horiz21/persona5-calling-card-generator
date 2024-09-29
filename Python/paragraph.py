@@ -78,8 +78,13 @@ class Paragraph:
                 posx = 0
         self.add_images(horizontal_image, horizontal_mask)
 
-    def generate(self, content_max_width: int, fonts_path: str, fonts_check: bool):
-        self.font_manager = FontManager(fonts_path)
+    def generate(
+        self,
+        content_max_width: int,
+        font_directory: str,
+        font_format_check: bool,
+    ):
+        self.font_manager = FontManager(font_directory)
         self.images.clear()
         self.masks.clear()
 
@@ -100,20 +105,20 @@ class Paragraph:
                         type=choices(PATTERN, weights=PATTERN_WEIGHT)[0],
                     ),
                 )
-                _, font_path = self.font_manager.choice()
-                if fonts_check:
+                _, font = self.font_manager.choice()
+                if font_format_check:
                     cmap = {}
                     while cmap == None or ord(target_character) not in cmap:
-                        index, font_path = self.font_manager.choice()
+                        index, font = self.font_manager.choice()
                         font = (
-                            TTCollection(font_path).fonts[0]
-                            if font_path.lower().endswith(".ttc")
-                            else TTFont(font_path)
+                            TTCollection(font).fonts[0]
+                            if font.lower().endswith(".ttc")
+                            else TTFont(font)
                         )
                         cmap = font.getBestCmap()
                         self.font_manager.remove(index)
                     self.font_manager.reset()
-                character.generate(font_path)
+                character.generate(font)
 
                 self.work_images.append(character.image)
                 self.work_masks.append(character.mask)

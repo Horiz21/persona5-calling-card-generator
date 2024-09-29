@@ -68,12 +68,12 @@ class CallingCard:
         padding: int | List[int],
         background: CardBackground,
         paragraphs: List[Paragraph],
-        fonts_path: str,
+        font_directory: str,
         gen_back: bool = False,
         antialias: int = 2,
         version: str = "V1.1(CLI)",
         watermark: bool = True,
-        font_check: bool = False,
+        font_format_check: bool = False,
         trigger: str = "python",
     ):
         self.gen_back = gen_back
@@ -106,25 +106,25 @@ class CallingCard:
             self.paragraphs[i].style.float *= antialias
             self.paragraphs[i].style.character_style.size *= antialias
 
-        if fonts_path == "default":
+        if font_directory == "default":
             import platform
 
             system = platform.system()
             if system == "Windows":
-                fonts_path = os.path.join(
+                font_directory = os.path.join(
                     os.path.expanduser("~"), "AppData/Local/Microsoft/Windows/Fonts"
                 )
             elif system == "Darwin":
-                fonts_path = "/Library/Fonts"
+                font_directory = "/Library/Fonts"
             elif system == "Linux":
-                fonts_path = "/usr/share/fonts"
+                font_directory = "/usr/share/fonts"
             else:
-                fonts_path = "../Fonts" if trigger == "python" else "./Fonts"
-        self.fonts_path = fonts_path
+                font_directory = "../Fonts" if trigger == "python" else "./Fonts"
+        self.font_directory = font_directory
 
         self.version = version
         self.watermark = watermark
-        self.font_check = font_check
+        self.font_format_check = font_format_check
 
     def generate(self):
         self.generate_face()
@@ -135,8 +135,8 @@ class CallingCard:
         for paragraph in self.paragraphs:
             paragraph.generate(
                 content_max_width=self.content_max_width,
-                fonts_path=self.fonts_path,
-                fonts_check=self.font_check,
+                font_directory=self.font_directory,
+                font_format_check=self.font_format_check,
             )
         content_height = sum(paragraph.height for paragraph in self.paragraphs)
         if self.auto_height:

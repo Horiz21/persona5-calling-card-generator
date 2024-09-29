@@ -37,8 +37,13 @@ public partial class Generator : Window
         ToolTip.SetTip(ratioButton,
             new ToolTip
             {
-                Content =
-                    "√2:1：常见纸张的比例，适用于包括 A4、A5、B5 在内的标准尺寸的纸张。\n16:9：标准宽屏显示器的比例，也是如今手机、数码相机摄影常用的比例之一。\n4:3：过去显示器的常见比例，也是如今手机、数码相机摄影常用的比例之一。\n3:2：35 毫米胶片用于静物拍摄的比例，也是常见的照片的印刷比例，适用于包括 5 吋、6 吋在内的照片印制。\n自动：以 3840 像素作为宽度，高度根据内容自适应。"
+                Content = """
+                          √2:1：常见纸张的比例，适用于包括 A4、A5、B5 在内的标准尺寸的纸张。
+                          16:9：标准宽屏显示器的比例，也是如今手机、数码相机摄影常用的比例之一。
+                          4:3：过去显示器的常见比例，也是如今手机、数码相机摄影常用的比例之一。
+                          3:2：35 毫米胶片用于静物拍摄的比例，也是常见的照片的印刷比例，适用于包括 5 吋、6 吋在内的照片印制。
+                          自动：以 3840 像素作为宽度，高度根据内容自适应。
+                          """
             });
         AdvancedGrid.Children.Add(ratioButton);
         Grid.SetColumn(ratioButton, 0);
@@ -50,7 +55,13 @@ public partial class Generator : Window
         };
         EditColorGrid(0);
         ToolTip.SetTip(customColorButton,
-            new ToolTip { Content = "默认配色：P5CCG 将使用 Persona 5 原版的配色风格生成预告信背景。\n自定义配色：可自由设定同心圆背景各个圆环的半径与色彩。" });
+            new ToolTip
+            {
+                Content = """
+                          默认配色：P5CCG 将使用 Persona 5 原版的配色风格生成预告信背景。
+                          自定义配色：可自由设定同心圆背景各个圆环的半径与色彩。
+                          """
+            });
         customColorButton.Click += (_, _) => EditColorGrid(customColorButton.GetCurrentState());
         AdvancedGrid.Children.Add(customColorButton);
         Grid.SetColumn(customColorButton, 1);
@@ -62,7 +73,13 @@ public partial class Generator : Window
         };
         AdvancedGrid.Children.Add(dotButton);
         ToolTip.SetTip(dotButton,
-            new ToolTip { Content = "生成墨渍：P5CCG 将使用 Persona 5 原版的墨渍效果点缀预告信。\n关闭墨渍：P5CCG 将生成干净清爽的预告信。" });
+            new ToolTip
+            {
+                Content = """
+                          生成墨渍：P5CCG 将使用 Persona 5 原版的墨渍效果点缀预告信。
+                          关闭墨渍：P5CCG 将生成干净清爽的预告信。
+                          """
+            });
         Grid.SetColumn(dotButton, 2);
 
         var backButton = new Persona5StyledMultiStateButton
@@ -74,8 +91,10 @@ public partial class Generator : Window
         ToolTip.SetTip(backButton,
             new ToolTip
             {
-                Content =
-                    "生成正面：P5CCG 将仅生成 Persona 5 预告信的正面。\n生成双面：P5CCG 将同时生成 Persona 5 预告信的正面与绘有心之怪盗团徽标的背面。生成的背面不会展示，仅在导出时一并保存。"
+                Content = """
+                          生成正面：P5CCG 将仅生成 Persona 5 预告信的正面。
+                          生成双面：P5CCG 将同时生成 Persona 5 预告信的正面与绘有心之怪盗团徽标的背面。生成的背面不会展示，仅在导出时一并保存。
+                          """
             });
         Grid.SetColumn(backButton, 3);
 
@@ -84,7 +103,7 @@ public partial class Generator : Window
         ContentButton.Click += AddRowForContent;
         GenerateButton.Click += GenerateCallingCardAsync;
         ExportButton.Click += ExportCallingCardAsync;
-        FontFolderButton.Click += SelectFontFolder;
+        FontDirectoryButton.Click += SelectFontDirectory;
 
         HelpButton.Click += ShowHelpMessage;
 
@@ -114,7 +133,10 @@ public partial class Generator : Window
 
     private void ShowHelpMessage(object? sender, EventArgs e)
     {
-        var dialog = new Persona5StyledDialog(this, $@"当前版本: {App.Version}{'\n'}开源地址: {App.Link}");
+        var dialog = new Persona5StyledDialog(this, $"""
+                                                     当前版本: {App.Version}
+                                                     开源地址: {App.Link}
+                                                     """);
 
         dialog.ViceButton.ControlTextContent = "检查更新";
         dialog.ViceButton.Click += async (_, _) =>
@@ -168,25 +190,25 @@ public partial class Generator : Window
         dialog.ShowDialog(this);
     }
 
-    private async void SelectFontFolder(object? sender, EventArgs e)
+    private async void SelectFontDirectory(object? sender, EventArgs e)
     {
-        var folderPickerOptions = new FolderPickerOpenOptions
+        var directoryPickerOptions = new FolderPickerOpenOptions
         {
             Title = "选择文件夹",
             AllowMultiple = false
         };
 
-        var result = await StorageProvider.OpenFolderPickerAsync(folderPickerOptions);
+        var result = await StorageProvider.OpenFolderPickerAsync(directoryPickerOptions);
 
         if (result is not { Count: > 0 }) return;
-        var folderPath = result[0].Path.LocalPath;
+        var directoryPath = result[0].Path.LocalPath;
 
-        var fontFiles = Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories)
+        var fontFiles = Directory.EnumerateFiles(directoryPath, "*.*", SearchOption.AllDirectories)
             .Where(file => file.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase) ||
                            file.EndsWith(".otf", StringComparison.OrdinalIgnoreCase));
 
         if (fontFiles.Any())
-            FontFolderPath.ControlTextBox.Text = folderPath;
+            FontDirectoryTextBox.ControlTextBox.Text = directoryPath;
         else
         {
             var dialog = new Persona5StyledDialog(this,
@@ -240,7 +262,10 @@ public partial class Generator : Window
         {
             if (ColorStackPanel.Children.Count <= 2)
             {
-                var dialog = new Persona5StyledDialog(this, "无法删除！\n至少保留一个颜色-半径组合！");
+                var dialog = new Persona5StyledDialog(this, """
+                                                            无法删除！
+                                                            至少保留一个颜色-半径组合！
+                                                            """);
                 dialog.ShowDialog(this);
             }
             else
@@ -269,7 +294,7 @@ public partial class Generator : Window
         var contentTextBox = new Persona5StyledTextBox();
         if (content.Length > 0) contentTextBox.Text = content;
         contentTextBox.Watermark = "单击此处键入您的文本";
-        var fontsizeButton = new Persona5StyledMultiStateButton
+        var fontSizeButton = new Persona5StyledMultiStateButton
         {
             ControlTextContents = new List<string> { "小", "中", "大" },
             IsTextMode = true
@@ -291,8 +316,8 @@ public partial class Generator : Window
         grid.Children.Add(contentTextBox);
         Grid.SetColumn(contentTextBox, 0);
         Grid.SetColumnSpan(contentTextBox, 2);
-        grid.Children.Add(fontsizeButton);
-        Grid.SetColumn(fontsizeButton, 3);
+        grid.Children.Add(fontSizeButton);
+        Grid.SetColumn(fontSizeButton, 3);
         grid.Children.Add(alignmentButton);
         Grid.SetColumn(alignmentButton, 5);
         grid.Children.Add(deleteButton);
@@ -302,7 +327,10 @@ public partial class Generator : Window
         {
             if (ContentStackPanel.Children.Count <= 2)
             {
-                var dialog = new Persona5StyledDialog(this, "无法删除！\n至少保留一个文本段落！");
+                var dialog = new Persona5StyledDialog(this, """
+                                                            无法删除！
+                                                            至少保留一个文本段落！
+                                                            """);
                 dialog.ShowDialog(this);
             }
             else ContentStackPanel.Children.Remove(grid);
@@ -325,11 +353,11 @@ public partial class Generator : Window
         _generatedCardFaceStream?.SetLength(0);
         _generatedCardBackStream?.SetLength(0);
         GeneratedImage.Source = new Bitmap(AssetLoader.Open(new Uri("avares://P5CCG/Assets/Images/default_light.png")));
-        
+
         var jsonMap = new JObject
         {
             ["ratio"] = GetButtonState(AdvancedGrid.Children[0] as Persona5StyledMultiStateButton, RatioArray),
-            ["font_path"] = string.IsNullOrEmpty(FontFolderPath.Text) ? "default" : FontFolderPath.Text,
+            ["font_directory"] = string.IsNullOrEmpty(FontDirectoryTextBox.Text) ? "default" : FontDirectoryTextBox.Text,
             ["colors"] = GetColorsAndRadii(),
             ["paragraphs"] = GetContents(),
             ["version"] = App.Version,
@@ -340,7 +368,10 @@ public partial class Generator : Window
 
         if (!jsonMap["colors"]!.Any())
         {
-            var dialog = new Persona5StyledDialog(this, "无法生成！\n含有一个或多个非法的颜色-半径值！");
+            var dialog = new Persona5StyledDialog(this, """
+                                                        无法生成！
+                                                        含有一个或多个非法的颜色-半径值！
+                                                        """);
             await dialog.ShowDialog(this);
             return;
         }
@@ -380,8 +411,10 @@ public partial class Generator : Window
         catch
         {
             Debug.WriteLine(escapedArgs);
-            var dialog = new Persona5StyledDialog(this,
-                "P5CCG 遇到问题，无法生成，请检查字体目录是否存在且目录中有 .ttf/.ttc/.otf 字体文件。");
+            var dialog = new Persona5StyledDialog(this, """
+                                                        P5CCG 遇到问题，无法生成。
+                                                        请检查字体目录是否存在且目录中有 .ttf/.ttc/.otf 字体文件。
+                                                        """);
             await dialog.ShowDialog(this);
         }
     }
@@ -390,7 +423,10 @@ public partial class Generator : Window
     {
         if (_generatedCardFaceStream == null || _generatedCardFaceStream.Length == 0)
         {
-            var dialog = new Persona5StyledDialog(this, "导出失败！\n没有可供导出的图像数据，请先使用生成功能生成并预览，再进行导出。");
+            var dialog = new Persona5StyledDialog(this, """
+                                                        导出失败！
+                                                        没有可供导出的图像数据，请先使用生成功能生成并预览，再进行导出。
+                                                        """);
             await dialog.ShowDialog(this);
             return;
         }
@@ -446,7 +482,10 @@ public partial class Generator : Window
         }
         catch (Exception ex)
         {
-            var styledDialog = new Persona5StyledDialog(this, $"导出失败！{'\n'}保存图像时遇到错误: {ex.Message}");
+            var styledDialog = new Persona5StyledDialog(this, $"""
+                                                               导出失败！
+                                                               保存图像时遇到错误: {ex.Message}。
+                                                               """);
             await styledDialog.ShowDialog(this);
         }
     }
@@ -493,13 +532,13 @@ public partial class Generator : Window
         {
             if (child is not Grid grid) continue;
             var content = grid.Children[0].FindControl<TextBox>("ControlTextBox")?.Text ?? string.Empty;
-            var fontsize = GetButtonState(grid.Children[1] as Persona5StyledMultiStateButton, FontSizeArray);
+            var fontSize = GetButtonState(grid.Children[1] as Persona5StyledMultiStateButton, FontSizeArray);
             var alignment = GetButtonState(grid.Children[2] as Persona5StyledMultiStateButton, AlignmentArray);
 
             contents.Add(new JObject
             {
                 { "content", content },
-                { "fontsize", fontsize },
+                { "font_size", fontSize },
                 { "alignment", alignment },
             });
         }

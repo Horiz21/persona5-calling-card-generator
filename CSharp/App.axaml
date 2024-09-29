@@ -9,6 +9,15 @@
 			<Setter Property="FontFamily" Value="../Assets/Fonts/SourceHanSansCN-Regular.otf#Source Han Sans CN"/>
 			<Setter Property="FontSize" Value="14"/>
 		</Style>
+		<Style Selector="ToolTip">
+			<Setter Property="FontFamily" Value="../Assets/Fonts/SourceHanSansCN-Regular.otf#Source Han Sans CN"/>
+			<Setter Property="Background" Value="Black"/>
+			<Setter Property="FontSize" Value="12"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Padding" Value="10,5"/>
+		</Style>
 	</Application.Styles>
 
 </Application>
