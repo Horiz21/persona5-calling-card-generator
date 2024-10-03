@@ -5,13 +5,14 @@
 			 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
 			 HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
 	<Grid>
-		<local:Persona5QuadrilateralBackground x:Name="BackgroundPath"/>
+		<local:Persona5QuadrilateralPath x:Name="BackgroundPath"/>
 		<TextBox Name="ControlTextBox"
 				 Background="Transparent"
 				 BorderThickness="0"
 				 Text="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type local:Persona5StyledTextBox}}, Mode=TwoWay}"
 				 Watermark="{Binding Watermark, RelativeSource={RelativeSource AncestorType={x:Type local:Persona5StyledTextBox}}, Mode=TwoWay}"
 				 Margin="10 0"
-				 HorizontalContentAlignment="Center"/>
+				 HorizontalContentAlignment="Left"
+				 VerticalAlignment="Center"/>
 	</Grid>
 </UserControl>

@@ -68,7 +68,7 @@ class CallingCard:
         padding: int | List[int],
         background: CardBackground,
         paragraphs: List[Paragraph],
-        font_directory: str,
+        font_directory: str,  # "default", "system", actual path
         gen_back: bool = False,
         antialias: int = 2,
         version: str = "V1.1(CLI)",
@@ -107,6 +107,8 @@ class CallingCard:
             self.paragraphs[i].style.character_style.size *= antialias
 
         if font_directory == "default":
+            font_directory = ("../" if trigger == "python" else "./") + "Assets/Fonts"
+        elif font_directory == "system":
             import platform
 
             system = platform.system()
@@ -118,8 +120,6 @@ class CallingCard:
                 font_directory = "/Library/Fonts"
             elif system == "Linux":
                 font_directory = "/usr/share/fonts"
-            else:
-                font_directory = "../Fonts" if trigger == "python" else "./Fonts"
         self.font_directory = font_directory
 
         self.version = version
@@ -194,12 +194,12 @@ By using P5CCG, users accept responsibility for how this image is utilized and a
             ],
             colors=[
                 "#FFF",
-                self.background.colors[-1],
                 (
                     "#000"
                     if len(self.background.colors) < 2
                     else self.background.colors[-2]
                 ),
+                self.background.colors[-1],
             ],
         )
 

@@ -20,17 +20,17 @@
         <!--数据编辑与展示区域-->
         <StackPanel Orientation="Vertical" Margin="10">
             <Grid ColumnDefinitions="40,*,40,40" Height="40">
-                <local:Persona5StyleButton x:Name="HelpButton"
+                <local:Persona5StyledButton x:Name="HelpButton"
                                            Grid.Column="0"
                                            DefaultImage="../Assets/Images/button_question_normal.png"
                                            HoverImage="../Assets/Images/button_question_hover.png"
                                            PressedImage="../Assets/Images/button_question_pressed.png" />
-                <local:Persona5StyleButton x:Name="HideWindowButton"
+                <local:Persona5StyledButton x:Name="MinimizeWindowButton"
                                            Grid.Column="2"
                                            DefaultImage="../Assets/Images/button_minus_normal.png"
                                            HoverImage="../Assets/Images/button_minus_hover.png"
                                            PressedImage="../Assets/Images/button_minus_pressed.png" />
-                <local:Persona5StyleButton x:Name="CloseWindowButton"
+                <local:Persona5StyledButton x:Name="CloseWindowButton"
                                            Grid.Column="3"
                                            DefaultImage="../Assets/Images/button_times_normal.png"
                                            HoverImage="../Assets/Images/button_times_hover.png"
@@ -42,41 +42,40 @@
                 <StackPanel Grid.Column="0">
                     <!--基本-->
                     <Image Source="../Assets/Images/caption_basic.png" Height="40" HorizontalAlignment="Left" />
-                    <Grid RowDefinitions="35 35" ColumnDefinitions="80 300 50">
+                    <Grid RowDefinitions="35 35" ColumnDefinitions="80 *">
                         <Label Grid.Row="0" Grid.Column="0"
-                               Content="字体目录"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center" />
-                        <local:Persona5StyledTextBox x:Name="FontDirectoryTextBox"
-                                                     Grid.Row="0" Grid.Column="1" />
-                        <local:Persona5StyleButton x:Name="FontDirectoryButton"
-                                                   Grid.Row="0" Grid.Column="2"
-                                                   ControlTextContent="选择"
-                                                   IsTextMode="True"
-                                                   ToolTip.Tip="可手动设定包含 TrueType (.ttf) 或 OpenType (.otf) 格式字体的目录，留空则使用默认的思源字体。" />
-
-                        <Label Grid.Row="1" Grid.Column="0"
-                               Content="高级设定"
+                               Content="版式设定"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center" />
                         <Grid x:Name="AdvancedGrid"
-                              Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                              Grid.Row="0" Grid.Column="1"
                               ColumnDefinitions="2* 3* 3* 3*" />
+                        <Label Grid.Row="1" Grid.Column="0"
+                               Content="字体目录"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                        <StackPanel Grid.Row="1" Grid.Column="1"
+                                    Orientation="Horizontal">
+                            <local:Persona5StyledTextBox x:Name="FontDirectoryTextBox" Watermark="默认字体目录" Width="300" />
+                            <local:Persona5StyledButton x:Name="FontDirectoryButton" Width="50"
+                                                       ControlTextContent="选择" IsTextMode="True"
+                                                       ToolTip.Tip="可手动设定包含字体的目录。&#10;留空时，使用默认的思源字体。" />
+                        </StackPanel>
                     </Grid>
 
-                    <!--色彩-->
-                    <Grid x:Name="ColorGrid"
+                    <!--背景样式（颜色与半径）-->
+                    <Grid x:Name="ColorAndRadiiGrid"
                           ColumnDefinitions="* 40">
                         <Image Source="../Assets/Images/caption_color.png" Height="40" HorizontalAlignment="Left" />
-                        <local:Persona5StyleButton x:Name="ColorButton"
+                        <local:Persona5StyledButton x:Name="AddColorAndRadiiButton"
                                                    Grid.Column="1"
                                                    DefaultImage="../Assets/Images/button_add_normal.png"
                                                    HoverImage="../Assets/Images/button_add_hover.png"
                                                    PressedImage="../Assets/Images/button_add_pressed.png" />
                     </Grid>
-                    <ScrollViewer x:Name="ColorScrollViewer"
+                    <ScrollViewer x:Name="ColorAndRadiiScrollViewer"
                                   Height="105">
-                        <StackPanel x:Name="ColorStackPanel">
+                        <StackPanel x:Name="ColorAndRadiiStackPanel">
                             <Grid ColumnDefinitions="80 * 210 * 85 * 40" Height="35">
                                 <Label Grid.Column="0" Content="颜色预览" HorizontalAlignment="Center"
                                        VerticalAlignment="Center" />
@@ -86,7 +85,7 @@
                                        ToolTip.Tip="使用 HEX 代码的形式表示，例如 #FF0000 表示红色" />
                                 <Label Grid.Column="4" Content="半径"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"
-                                       ToolTip.Tip="背景同心圆单个圆环的像素数，例如 “红色:黑色 = 260px:320px = 13:16” 是一个接近原作效果的数值" />
+                                       ToolTip.Tip="背景同心圆单个圆环的像素数" />
                                 <Label Grid.Column="6" Content="移除" HorizontalAlignment="Center"
                                        VerticalAlignment="Center" />
                             </Grid>
@@ -96,14 +95,13 @@
                     <!--内容-->
                     <Grid ColumnDefinitions="* 40">
                         <Image Source="../Assets/Images/caption_content.png" Height="40" HorizontalAlignment="Left" />
-                        <local:Persona5StyleButton x:Name="ContentButton"
+                        <local:Persona5StyledButton x:Name="AddContentButton"
                                                    Grid.Column="1"
                                                    DefaultImage="../Assets/Images/button_add_normal.png"
                                                    HoverImage="../Assets/Images/button_add_hover.png"
                                                    PressedImage="../Assets/Images/button_add_pressed.png" />
                     </Grid>
-                    <ScrollViewer x:Name="ContentScrollViewer"
-                                  Height="175">
+                    <ScrollViewer x:Name="ContentScrollViewer" Height="175">
                         <StackPanel x:Name="ContentStackPanel">
                             <Grid ColumnDefinitions="80 195 * 50 * 50 * 40" Height="35">
                                 <Label Grid.Column="0" Content="段落文本"
@@ -124,7 +122,7 @@
                         </StackPanel>
                     </ScrollViewer>
                 </StackPanel>
-                
+
                 <!--右列-->
                 <Grid Grid.Column="2"
                       RowDefinitions="376 10 *">
@@ -135,20 +133,19 @@
                             VerticalAlignment="Center"
                             Background="Black"
                             HorizontalAlignment="Center">
-                        <Image x:Name="GeneratedImage"
-                               Source="../Assets/Images/default_dark.png"
-                               Stretch="Uniform" />
+                        <Image x:Name="GeneratedImage" Stretch="Uniform"
+                               Source="../Assets/Images/default_dark.png" />
                     </Border>
                     <StackPanel Grid.Row="2"
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center">
-                        <local:Persona5StyleButton x:Name="GenerateButton"
+                        <local:Persona5StyledButton x:Name="GenerateButton"
                                                    Height="72"
                                                    DefaultImage="../Assets/Images/button_generate_normal.png"
                                                    HoverImage="../Assets/Images/button_generate_hover.png"
                                                    PressedImage="../Assets/Images/button_generate_pressed.png" />
-                        <local:Persona5StyleButton x:Name="ExportButton"
+                        <local:Persona5StyledButton x:Name="ExportButton"
                                                    Height="72"
                                                    DefaultImage="../Assets/Images/button_export_normal.png"
                                                    HoverImage="../Assets/Images/button_export_hover.png"

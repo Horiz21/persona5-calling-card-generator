@@ -21,12 +21,12 @@
             <TextBlock x:Name="ViceTextBlock" TextWrapping="Wrap" IsVisible="False" Margin="0,0,0,10"
                        FontSize="12"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <local:Persona5StyleButton x:Name="ViceButton"
+                <local:Persona5StyledButton x:Name="ViceButton"
                                            ControlTextContent="确认"
                                            IsTextMode="True"
                                            IsVisible="False"
                                            Width="80" />
-                <local:Persona5StyleButton x:Name="ConfirmButton"
+                <local:Persona5StyledButton x:Name="ConfirmButton"
                                            ControlTextContent="确认"
                                            IsTextMode="True"
                                            Width="80" />

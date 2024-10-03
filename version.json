@@ -1,29 +1,37 @@
 {
-  "latestVersion": "V1.0",
+  "latestVersion": "V1.1",
   "versions": [
+    {
+      "version": "V1.1",
+      "releaseDate": "2024-10-04",
+      "updateNotesGitHub": "In version V1.1, the generation algorithm for P5CCG has been optimized, and the requirements for the custom font directory have been relaxed, allowing the directory to no longer be limited to just font files. Additionally, optional inkblot generation and back and logo generation features have been added. The page layout has been streamlined and reorganized, significantly improving code readability and usability.",
+      "updateNotesGitee": "V1.1 版本中，对 P5CCG 的生成算法进行了优化，同时放宽了自定义字体目录的要求，现在该目录不再仅限于存放字体文件。此外，新增了可选的墨渍生成以及背面和 Logo 生成功能。页面布局经过精简与重组，显著增强了代码的可读性和易用性。",
+      "downloadLinkGitHub": "https://github.com/Horiz21/persona5-calling-card-generator/releases/download/V1.1/P5CCG-V1.1.zip",
+      "downloadLinkGitee": "https://gitee.com/horiz21/persona5-calling-card-generator/releases/download/V1.1/P5CCG-V1.1.zip"
+    },
     {
       "version": "V1.0",
       "releaseDate": "2024-09-15",
-      "updateNotesEN": "On September 15, 2016, ATLUS officially released Persona 5 in Japan. Eight years later, the Persona 5 Calling Card Generator (P5CCG), created and open-sourced by gamer Horiz21, has officially released V1.0. Compared to the previous beta version, the official release features an improved interface layout, additional functionalities, and enhanced security through digital watermarking. Now, experience the phantom-like P5CCG and create your own calling card...",
-      "updateNotesCN": "2016 年 9 月 15 日，ATLUS在日本正式发布《Persona 5》。8年后，由玩家Horiz21创建并开源的《Persona 5 预告信生成器》（P5CCG）正式发布 V1.0 版本。与之前的测试版相比，正式版调整了界面布局，增加了一些新功能，并通过数字水印技术提高了安全性。现在，来试试这个如同幻影般的 P5CCG，创作你自己的预告信吧……",
-      "downloadUrlEN": "https://github.com/Horiz21/persona5-calling-card-generator/releases/download/V1.0/P5CCG-V1.0.zip",
-      "downloadUrlCN": "https://gitee.com/horiz21/persona5-calling-card-generator/releases/download/V1.0/P5CCG-V1.0.zip"
+      "updateNotesGitHub": "On September 15, 2016, ATLUS officially released Persona 5 in Japan. Eight years later, the Persona 5 Calling Card Generator (P5CCG), created and open-sourced by gamer Horiz21, has officially released V1.0. Compared to the previous beta version, the official release features an improved interface layout, additional functionalities, and enhanced security through digital watermarking. Now, experience the phantom-like P5CCG and create your own calling card...",
+      "updateNotesGitee": "2016 年 9 月 15 日，ATLUS 在日本正式发布《Persona 5》。8 年后，由玩家 Horiz21 创建并开源的 Persona 5 预告信生成器（P5CCG）正式发布 V1.0 版本。与之前的测试版相比，正式版调整了界面布局，增加了一些新功能，并通过数字水印技术提高了安全性。现在，来试试这个如同幻影般的 P5CCG，创作你自己的预告信吧……",
+      "downloadLinkGitHub": "https://github.com/Horiz21/persona5-calling-card-generator/releases/download/V1.0/P5CCG-V1.0.zip",
+      "downloadLinkGitee": "https://gitee.com/horiz21/persona5-calling-card-generator/releases/download/V1.0/P5CCG-V1.0.zip"
     },
     {
       "version": "Beta-240827",
       "releaseDate": "2024-08-27",
-      "updateNotesEN": "In version Beta-240827, the graphical user interface (GUI) has been updated to a modern Persona5-themed design using Avalonia, C#, and Python. The GUI now offers improved aesthetics and usability compared to the previous beta. This version is suitable for regular use and aligns closely with the original Persona 5 style. Advanced features are accessible through the source code but are not part of the current GUI update plan due to the complexity of implementation and the limited impact on basic functionality.",
-      "updateNotesCN": "在 Beta-240827 版本中，图形用户界面（GUI）已更新为采用 Avalonia、C# 和 Python 开发的现代 Persona 5 风格设计。与之前的测试版相比，GUI 的美观性和易用性均有所提升。更高级的功能目前仍然仅可通过源代码访问。由于实施复杂性和对基本功能影响有限，GUI 版本的高级功能不在当前的更新计划中。",
-      "downloadUrlEN": "https://github.com/Horiz21/persona5-calling-card-generator/releases/download/Beta-240827/P5CCG-Beta-240827.zip",
-      "downloadUrlCN": "https://wwwr.lanzoul.com/iD0Xo28lwzxc"
+      "updateNotesGitHub": "In version Beta-240827, the graphical user interface (GUI) has been updated to a modern Persona5-themed design using Avalonia, C#, and Python. The GUI now offers improved aesthetics and usability compared to the previous beta. This version is suitable for regular use and aligns closely with the original Persona 5 style. Advanced features are accessible through the source code but are not part of the current GUI update plan due to the complexity of implementation and the limited impact on basic functionality.",
+      "updateNotesGitee": "在 Beta-240827 版本中，图形用户界面（GUI）已更新为采用 Avalonia、C# 和 Python 开发的现代 Persona 5 风格设计。与之前的测试版相比，GUI 的美观性和易用性均有所提升。更高级的功能目前仍然仅可通过源代码访问。由于实施复杂性和对基本功能影响有限，GUI 版本的高级功能不在当前的更新计划中。",
+      "downloadLinkGitHub": "https://github.com/Horiz21/persona5-calling-card-generator/releases/download/Beta-240827/P5CCG-Beta-240827.zip",
+      "downloadLinkGitee": "https://wwwr.lanzoul.com/iD0Xo28lwzxc"
     },
     {
       "version": "Alpha-240622",
       "releaseDate": "2024-07-01",
-      "updateNotesEN": "After gaining some traction on social media, I finally decided to create a usable simple GUI using tkinter in beta.In this GUI version of P5CCG, the user has been able to simply define multiple paragraph and background colors, specify fonts and image widths, etc.The Alpha-240622 version is sufficient for day-to-day use, but advanced functionality is still required for now via the source code.",
-      "updateNotesCN": "在社交媒体上获得一些关注后，我决定在测试版中使用 tkinter 创建一个可用的简单图形用户界面（GUI）。在这个图形用户界面版本的 P5CCG 中，用户已经可以简单地定义多个段落和背景颜色、指定字体和图片宽度等。Alpha-240622 版本足以满足日常使用，但更多的高级功能目前仍需要通过源代码使用。",
-      "downloadUrlEN": "https://github.com/Horiz21/persona5-calling-card-generator/releases/download/Alpha-240622/P5CCG-Alpha-240622.exe",
-      "downloadUrlCN": "https://wwb.lanzoul.com/iaDMD22f7lpi"
+      "updateNotesGitHub": "After gaining some traction on social media, I finally decided to create a usable simple GUI using tkinter in beta.In this GUI version of P5CCG, the user has been able to simply define multiple paragraph and background colors, specify fonts and image widths, etc.The Alpha-240622 version is sufficient for day-to-day use, but advanced functionality is still required for now via the source code.",
+      "updateNotesGitee": "在社交媒体上获得一些关注后，我决定在测试版中使用 tkinter 创建一个可用的简单图形用户界面（GUI）。在这个图形用户界面版本的 P5CCG 中，用户已经可以简单地定义多个段落和背景颜色、指定字体和图片宽度等。Alpha-240622 版本足以满足日常使用，但更多的高级功能目前仍需要通过源代码使用。",
+      "downloadLinkGitHub": "https://github.com/Horiz21/persona5-calling-card-generator/releases/download/Alpha-240622/P5CCG-Alpha-240622.exe",
+      "downloadLinkGitee": "https://wwb.lanzoul.com/iaDMD22f7lpi"
     }
   ]
 }

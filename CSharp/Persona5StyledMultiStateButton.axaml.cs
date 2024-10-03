@@ -8,13 +8,13 @@ using Avalonia.Media;
 
 namespace P5CCG {
 	public partial class Persona5StyledMultiStateButton : UserControl {
-        public static readonly StyledProperty<IList<Bitmap>> ControlImageSourcesProperty =
+        private static readonly StyledProperty<IList<Bitmap>> ControlImageSourcesProperty =
             AvaloniaProperty.Register<Persona5StyledMultiStateButton, IList<Bitmap>>(nameof(ControlImageSources));
 
-        public static readonly StyledProperty<IList<string>> ControlTextContentsProperty =
+        private static readonly StyledProperty<IList<string>> ControlTextContentsProperty =
             AvaloniaProperty.Register<Persona5StyledMultiStateButton, IList<string>>(nameof(ControlTextContents));
 
-        public static readonly StyledProperty<bool> IsTextModeProperty =
+        private static readonly StyledProperty<bool> IsTextModeProperty =
             AvaloniaProperty.Register<Persona5StyledMultiStateButton, bool>(nameof(IsTextMode));
 
         public IList<Bitmap> ControlImageSources
@@ -35,62 +35,55 @@ namespace P5CCG {
             init => SetValue(IsTextModeProperty, value);
         }
 
-        private int _currentState = 0;
+        private int _currentState;
 
         public Persona5StyledMultiStateButton()
         {
             InitializeComponent();
             BackgroundPath.UpdateColor(Colors.Black);
-            Loaded += (sender, args) =>
+            Loaded += (_, _) =>
             {
-                PointerReleased += OnPointerReleased;
                 BackgroundPath.UpdateStroke(Colors.White, 2);
                 BackgroundPath.UpdateShape((int)Bounds.Width, (int)Bounds.Height, 5, 0, [2.0, 3.5]);
                 UpdateContent();
             };
-
+            
             ControlImageSources = new List<Bitmap>();
             ControlTextContents = new List<string>();
+            PointerReleased += OnPointerReleased;
         }
 
-        public int GetCurrentState()
-        {
-            return _currentState;
-        }
-        
+        public int GetCurrentState() => _currentState;
+
         private void OnPointerReleased(object sender, PointerReleasedEventArgs e)
         {
-            int optionCount = Math.Max(ControlImageSources.Count, ControlTextContents.Count);
-            if (optionCount > 0)
-            {
-                _currentState = (_currentState + 1) % optionCount;
-                UpdateContent();
-                RaiseClickEvent();
-            }
+            var optionCount = Math.Max(ControlImageSources.Count, ControlTextContents.Count);
+            if (optionCount <= 0) return;
+            _currentState = (_currentState + 1) % optionCount;
+            UpdateContent();
+            RaiseClickEvent();
         }
 
         private void UpdateContent()
         {
-            if (IsTextMode && ControlTextContents.Count > _currentState)
+            switch (IsTextMode)
             {
-                BackgroundPath.UpdateShape((int)Bounds.Width,(int)Bounds.Height,5,0,[2.0, 3.5]);
-                ControlText.Content = ControlTextContents[_currentState];
-                ControlImage.IsVisible = false;
-                ControlText.IsVisible = true;
-            }
-            else if (!IsTextMode && ControlImageSources.Count > _currentState)
-            {
-                ControlImage.Source = ControlImageSources[_currentState];
-                ControlImage.IsVisible = true;
-                ControlText.IsVisible = false;
+                case true when ControlTextContents.Count > _currentState:
+                    BackgroundPath.UpdateShape((int)Bounds.Width,(int)Bounds.Height,5,0,[2.0, 3.5]);
+                    ControlText.Content = ControlTextContents[_currentState];
+                    ControlImage.IsVisible = false;
+                    ControlText.IsVisible = true;
+                    break;
+                case false when ControlImageSources.Count > _currentState:
+                    ControlImage.Source = ControlImageSources[_currentState];
+                    ControlImage.IsVisible = true;
+                    ControlText.IsVisible = false;
+                    break;
             }
         }
 
-        public event EventHandler Click;
+        public event EventHandler? Click;
 
-        private void RaiseClickEvent()
-        {
-            Click?.Invoke(this, EventArgs.Empty);
-        }
-	}
+        private void RaiseClickEvent() => Click?.Invoke(this, EventArgs.Empty);
+    }
 }

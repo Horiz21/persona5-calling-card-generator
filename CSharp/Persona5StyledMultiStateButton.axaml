@@ -1,16 +1,15 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-			 xmlns:local="clr-namespace:P5CCG"
+             xmlns:local="clr-namespace:P5CCG"
              x:Class="P5CCG.Persona5StyledMultiStateButton"
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
              HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-	<Grid>
-		<local:Persona5QuadrilateralBackground x:Name="BackgroundPath"/>
-		<Image x:Name="ControlImage"
-			   Stretch="UniformToFill"/>
-		<Label x:Name="ControlText"
-			   HorizontalContentAlignment="Center"
-			   VerticalContentAlignment="Center"
-			   />
-	</Grid>
+    <Grid>
+        <local:Persona5QuadrilateralPath x:Name="BackgroundPath" />
+        <Image x:Name="ControlImage"
+               Stretch="UniformToFill" />
+        <Label x:Name="ControlText"
+               HorizontalContentAlignment="Center"
+               VerticalContentAlignment="Center" />
+    </Grid>
 </UserControl>

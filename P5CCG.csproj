@@ -7,10 +7,14 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <ApplicationIcon>Assets\p5ccg.ico</ApplicationIcon>
-        <Version>1.0</Version>
+        <Version>1.1</Version>
         <Title>Persona 5 预告信生成器</Title>
         <Authors>Horiz21</Authors>
         <Company>Horiz21</Company>
+        <PublishTrimmed>true</PublishTrimmed>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,7 +30,9 @@
     <ItemGroup>
         <AvaloniaResource Include="Assets\p5ccg.ico"/>
         <AvaloniaResource Include="Assets\Images\*.png"/>
+        <AvaloniaResource Include="Assets\Fonts\SourceHanSansCN-Light.otf"/>
         <AvaloniaResource Include="Assets\Fonts\SourceHanSansCN-Regular.otf"/>
+        <AvaloniaResource Remove="build\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -38,15 +44,11 @@
             <DependentUpon>Generator.axaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
-        <Compile Update="CSharp\Peronsa5StyledRadioButton.axaml.cs">
-            <DependentUpon>Peronsa5StyledRadioButton.axaml</DependentUpon>
-            <SubType>Code</SubType>
-        </Compile>
-        <Compile Update="CSharp\Persona5QuadrilateralBackground.axaml.cs">
+        <Compile Update="CSharp\Persona5QuadrilateralPath.axaml.cs">
             <DependentUpon>Persona5QuadrilateralBackground.axaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
-        <Compile Update="CSharp\Persona5StyleButton.axaml.cs">
+        <Compile Update="CSharp\Persona5StyledButton.axaml.cs">
             <DependentUpon>Persona5StyleButton.axaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
@@ -62,11 +64,13 @@
             <DependentUpon>Persona5MultiStateButton.axaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
+        <Compile Remove="build\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Python\"/>
-        <None Remove="Assets\Working\"/>
+        <None Remove="Python\" />
+        <None Remove="Assets\Working\" />
+        <None Remove="build\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -97,11 +101,20 @@
         <AdditionalFiles Include="Assets\Images\front_white.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </AdditionalFiles>
+        <AdditionalFiles Remove="build\**" />
     </ItemGroup>
     
     <ItemGroup>
         <AdditionalFiles Include="Assets\Fonts\*.otf">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </AdditionalFiles>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <AvaloniaXaml Remove="build\**" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <EmbeddedResource Remove="build\**" />
     </ItemGroup>
 </Project>

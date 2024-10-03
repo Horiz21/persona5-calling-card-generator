@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
@@ -29,6 +30,7 @@ public partial class Generator : Window
         InitializeComponent();
 
         // Advanced Grid
+        // Multi-State Button for Image Ratio
         var ratioButton = new Persona5StyledMultiStateButton
         {
             ControlTextContents = new List<string> { "√2:1", "16:9", "4:3", "3:2", "自动" },
@@ -41,20 +43,21 @@ public partial class Generator : Window
                           √2:1：常见纸张的比例，适用于包括 A4、A5、B5 在内的标准尺寸的纸张。
                           16:9：标准宽屏显示器的比例，也是如今手机、数码相机摄影常用的比例之一。
                           4:3：过去显示器的常见比例，也是如今手机、数码相机摄影常用的比例之一。
-                          3:2：35 毫米胶片用于静物拍摄的比例，也是常见的照片的印刷比例，适用于包括 5 吋、6 吋在内的照片印制。
+                          3:2：35 毫米胶片用于静物拍摄的比例，也是常见的照片的印刷比例，适用于 5 吋、6 吋等规格的照片印制。
                           自动：以 3840 像素作为宽度，高度根据内容自适应。
                           """
             });
         AdvancedGrid.Children.Add(ratioButton);
         Grid.SetColumn(ratioButton, 0);
 
-        var customColorButton = new Persona5StyledMultiStateButton
+        // Multi-State Button for Custom Color and Radii
+        var customColorAndRadiiButton = new Persona5StyledMultiStateButton
         {
             ControlTextContents = new List<string> { "默认配色", "自定义配色" },
             IsTextMode = true,
         };
-        EditColorGrid(0);
-        ToolTip.SetTip(customColorButton,
+        UpdateColorAndRadiiGridVisibility(false);
+        ToolTip.SetTip(customColorAndRadiiButton,
             new ToolTip
             {
                 Content = """
@@ -62,17 +65,19 @@ public partial class Generator : Window
                           自定义配色：可自由设定同心圆背景各个圆环的半径与色彩。
                           """
             });
-        customColorButton.Click += (_, _) => EditColorGrid(customColorButton.GetCurrentState());
-        AdvancedGrid.Children.Add(customColorButton);
-        Grid.SetColumn(customColorButton, 1);
+        customColorAndRadiiButton.Click += (_, _) =>
+            UpdateColorAndRadiiGridVisibility(customColorAndRadiiButton.GetCurrentState() == 1);
+        AdvancedGrid.Children.Add(customColorAndRadiiButton);
+        Grid.SetColumn(customColorAndRadiiButton, 1);
 
-        var dotButton = new Persona5StyledMultiStateButton
+        // Multi-State Button for Enabling or Disabling Decorative Ink Dots
+        var inkDotsButton = new Persona5StyledMultiStateButton
         {
             ControlTextContents = new List<string> { "生成墨渍", "关闭墨渍" },
             IsTextMode = true
         };
-        AdvancedGrid.Children.Add(dotButton);
-        ToolTip.SetTip(dotButton,
+        AdvancedGrid.Children.Add(inkDotsButton);
+        ToolTip.SetTip(inkDotsButton,
             new ToolTip
             {
                 Content = """
@@ -80,121 +85,139 @@ public partial class Generator : Window
                           关闭墨渍：P5CCG 将生成干净清爽的预告信。
                           """
             });
-        Grid.SetColumn(dotButton, 2);
+        Grid.SetColumn(inkDotsButton, 2);
 
-        var backButton = new Persona5StyledMultiStateButton
+        // Multi-State Button for Enabling or Disabling Card Back Generation
+        var cardSidesButton = new Persona5StyledMultiStateButton
         {
-            ControlTextContents = new List<string> { "生成正面", "生成双面" },
+            ControlTextContents = new List<string> { "生成单面", "生成双面" },
             IsTextMode = true
         };
-        AdvancedGrid.Children.Add(backButton);
-        ToolTip.SetTip(backButton,
+        AdvancedGrid.Children.Add(cardSidesButton);
+        ToolTip.SetTip(cardSidesButton,
             new ToolTip
             {
                 Content = """
-                          生成正面：P5CCG 将仅生成 Persona 5 预告信的正面。
+                          生成单面：P5CCG 将仅生成 Persona 5 预告信的正面。
                           生成双面：P5CCG 将同时生成 Persona 5 预告信的正面与绘有心之怪盗团徽标的背面。生成的背面不会展示，仅在导出时一并保存。
                           """
             });
-        Grid.SetColumn(backButton, 3);
+        Grid.SetColumn(cardSidesButton, 3);
 
-        // Basic Button Click Events
-        ColorButton.Click += AddRowForColor;
-        ContentButton.Click += AddRowForContent;
+        // Click Events for Other Buttons
+        AddColorAndRadiiButton.Click += AddColorAndRadii;
+        AddColorAndRadii("#FF0000", 260);
+        AddColorAndRadii("#000000", 320);
+
+        AddContentButton.Click += AddRowForAddContent;
+        AddContent();
+
         GenerateButton.Click += GenerateCallingCardAsync;
         ExportButton.Click += ExportCallingCardAsync;
+
         FontDirectoryButton.Click += SelectFontDirectory;
 
-        HelpButton.Click += ShowHelpMessage;
+        HelpButton.Click += ShowHelpDialog;
 
-        HideWindowButton.Click += (_, _) => WindowState = Minimized;
+        MinimizeWindowButton.Click += (_, _) => WindowState = Minimized;
         CloseWindowButton.Click += (_, _) => Close();
-        AddRowForColor("#FF0000", 260);
-        AddRowForColor("#000000", 320);
-        AddRowForContent();
     }
 
-    private void EditColorGrid(int mode)
+    /// <summary>
+    /// Updated visibility and usability of ColorAndRadii area
+    /// </summary>
+    /// <param name="isVisible">Determines the visibility and usability of the title and Scroll Viewer of the second input area (ColorAndRadii) on the interface.</param>
+    private void UpdateColorAndRadiiGridVisibility(bool isVisible)
     {
-        switch (mode)
+        if (isVisible)
         {
-            case 0:
-                ColorGrid.IsVisible = false;
-                ColorScrollViewer.IsVisible = false;
-                ContentScrollViewer.Height = 320;
-                break;
-            case 1:
-                ColorGrid.IsVisible = true;
-                ColorScrollViewer.IsVisible = true;
-                ContentScrollViewer.Height = 175;
-                break;
+            ColorAndRadiiGrid.IsVisible = true;
+            ColorAndRadiiScrollViewer.IsVisible = true;
+            ContentScrollViewer.Height = 175;
+        }
+        else
+        {
+            ColorAndRadiiGrid.IsVisible = false;
+            ColorAndRadiiScrollViewer.IsVisible = false;
+            ContentScrollViewer.Height = 320;
         }
     }
 
-    private void ShowHelpMessage(object? sender, EventArgs e)
+    /// <summary>
+    /// Show the help dialog which contains version information and a "Check Update" Button.
+    /// </summary>
+    private void ShowHelpDialog(object? sender, EventArgs e)
     {
         var dialog = new Persona5StyledDialog(this, $"""
                                                      当前版本: {App.Version}
                                                      开源地址: {App.Link}
                                                      """);
-
         dialog.ViceButton.ControlTextContent = "检查更新";
         dialog.ViceButton.Click += async (_, _) =>
         {
             try
             {
                 var reply = new Ping().Send("google.com", 1000, "Horiz21"u8.ToArray());
-                var networkState = reply.Status == IPStatus.Success ? "en" : "cn";
+                var source = reply.Status == IPStatus.Success ? "GitHub" : "Gitee";
 
-                var json = await App.FetchJsonAsync(
-                    networkState == "en" ? App.VersionJsonLinkEn : App.VersionJsonLinkCn);
+                using var client = new HttpClient();
+                var response = await client.GetAsync(App.VersionJsonLink[source]);
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"无法从网络加载版本列表：{response.StatusCode} - {response.ReasonPhrase}");
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var jsonContent = JObject.Parse(jsonString);
+                var latestVersion = jsonContent.GetValue("latestVersion")?.ToString();
 
-                var latestVersion = json?.GetValue("latestVersion")?.ToString();
-
-                if (latestVersion != App.Version)
+                if (latestVersion == App.Version)
+                {
+                    dialog.ViceTextBlock.Text = "当前已是最新版本！";
+                    dialog.ViceTextBlock.IsVisible = true;
+                    dialog.ViceButton.ControlTextContent = "已是最新";
+                    dialog.ViceButton.IsEnabled = false;
+                }
+                else
                 {
                     var latestVersionDetails =
-                        json?["versions"]?.FirstOrDefault(v => v["version"]?.ToString() == latestVersion);
-
+                        jsonContent["versions"]?.FirstOrDefault(v => v["version"]?.ToString() == latestVersion);
                     if (latestVersionDetails == null || dialog.ViceButton.ControlTextContent == "下载更新") return;
-                    var updateNotes = latestVersionDetails[networkState == "en" ? "updateNotesEN" : "updateNotesCN"]
-                        ?.ToString();
-                    dialog.ViceTextBlock.Text = $"{updateNotes}";
+
+                    var updateNotes = latestVersionDetails["updateNotes" + source]?.ToString();
+                    dialog.ViceTextBlock.Text = updateNotes;
                     dialog.ViceTextBlock.IsVisible = true;
                     dialog.ViceButton.ControlTextContent = "下载更新";
                     dialog.ViceButton.Click += (_, _) =>
                     {
-                        var updateUrl =
-                            latestVersionDetails[networkState == "en" ? "downloadUrlEN" : "downloadUrlCN"];
+                        var downloadLink = latestVersionDetails["downloadLink" + source]?.ToString();
                         Process.Start(new ProcessStartInfo
                         {
-                            FileName = (string)updateUrl!,
+                            FileName = downloadLink,
                             UseShellExecute = true
                         });
                     };
                 }
-                else
-                {
-                    dialog.ViceTextBlock.Text = "当前已是最新版本！";
-                    dialog.ViceTextBlock.IsVisible = true;
-                }
             }
-            catch
+            catch (Exception exception)
             {
-                dialog.ViceTextBlock.Text = "检查更新失败！请确认设备是否接入互联网。";
+                dialog.ViceTextBlock.Text = $"""
+                                             {exception.Message}
+                                             请检查设备网络接入情况。
+                                             """;
                 dialog.ViceTextBlock.IsVisible = true;
             }
         };
-
         dialog.ViceButton.IsVisible = true;
+
         dialog.ShowDialog(this);
     }
 
+    /// <summary>
+    /// Open a select folder window (FolderPicker) for the user to choose a customized font directory.
+    /// </summary>
     private async void SelectFontDirectory(object? sender, EventArgs e)
     {
         var directoryPickerOptions = new FolderPickerOpenOptions
         {
-            Title = "选择文件夹",
+            Title = "选择字体目录",
             AllowMultiple = false
         };
 
@@ -203,21 +226,23 @@ public partial class Generator : Window
         if (result is not { Count: > 0 }) return;
         var directoryPath = result[0].Path.LocalPath;
 
+        var fontExtensions = new[] { ".otf", ".ttf", ".ttc" };
         var fontFiles = Directory.EnumerateFiles(directoryPath, "*.*", SearchOption.AllDirectories)
-            .Where(file => file.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase) ||
-                           file.EndsWith(".otf", StringComparison.OrdinalIgnoreCase));
+            .Where(file => fontExtensions.Any(ext => file.EndsWith(ext, StringComparison.OrdinalIgnoreCase)));
 
         if (fontFiles.Any())
             FontDirectoryTextBox.ControlTextBox.Text = directoryPath;
         else
         {
-            var dialog = new Persona5StyledDialog(this,
-                "字体目录错误！所选文件夹中没有找到字体文件。当前版本支持的字体格式为 TrueType (.ttf) 与 OpenType (.otf)。");
+            var dialog = new Persona5StyledDialog(this, """
+                                                        字体目录错误！
+                                                        所选文件夹中没有找到字体文件。当前版本支持的字体格式为 TrueType (.ttf) 与 OpenType (.otf)。
+                                                        """);
             await dialog.ShowDialog(this);
         }
     }
 
-    private void AddRowForColor(string hex, int radius)
+    private void AddColorAndRadii(string hex, int radius)
     {
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("80 * 210 * 85 * 40"), Height = 35 };
 
@@ -233,7 +258,7 @@ public partial class Generator : Window
             Text = radius.ToString(),
             Watermark = "320"
         };
-        var deleteButton = new Persona5StyleButton
+        var deleteButton = new Persona5StyledButton
         {
             DefaultImage =
                 new Bitmap(AssetLoader.Open(new Uri("avares://P5CCG/Assets/Images/button_minus_normal.png"))),
@@ -260,7 +285,7 @@ public partial class Generator : Window
 
         deleteButton.Click += (_, _) =>
         {
-            if (ColorStackPanel.Children.Count <= 2)
+            if (ColorAndRadiiStackPanel.Children.Count <= 2)
             {
                 var dialog = new Persona5StyledDialog(this, """
                                                             无法删除！
@@ -269,7 +294,7 @@ public partial class Generator : Window
                 dialog.ShowDialog(this);
             }
             else
-                ColorStackPanel.Children.Remove(grid);
+                ColorAndRadiiStackPanel.Children.Remove(grid);
         };
 
         colorPanel.ControlTextBox.IsReadOnly = true;
@@ -284,16 +309,16 @@ public partial class Generator : Window
         grid.Children.Add(deleteButton);
         Grid.SetColumn(deleteButton, 6);
 
-        ColorStackPanel.Children.Add(grid);
+        ColorAndRadiiStackPanel.Children.Add(grid);
     }
 
-    private void AddRowForContent(string content = "")
+    private void AddContent(string content = "")
     {
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("80 195 * 50 * 50 * 40"), Height = 35 };
 
         var contentTextBox = new Persona5StyledTextBox();
         if (content.Length > 0) contentTextBox.Text = content;
-        contentTextBox.Watermark = "单击此处键入您的文本";
+        contentTextBox.Watermark = "单击此处键入文本";
         var fontSizeButton = new Persona5StyledMultiStateButton
         {
             ControlTextContents = new List<string> { "小", "中", "大" },
@@ -304,7 +329,7 @@ public partial class Generator : Window
             ControlTextContents = new List<string> { "左", "中", "右" },
             IsTextMode = true
         };
-        var deleteButton = new Persona5StyleButton
+        var deleteButton = new Persona5StyledButton
         {
             DefaultImage =
                 new Bitmap(AssetLoader.Open(new Uri("avares://P5CCG/Assets/Images/button_minus_normal.png"))),
@@ -339,8 +364,8 @@ public partial class Generator : Window
         ContentStackPanel.Children.Add(grid);
     }
 
-    private void AddRowForColor(object? sender, EventArgs e) => AddRowForColor("#FF0000", 260);
-    private void AddRowForContent(object? sender, EventArgs e) => AddRowForContent();
+    private void AddColorAndRadii(object? sender, EventArgs e) => AddColorAndRadii("#FF0000", 260);
+    private void AddRowForAddContent(object? sender, EventArgs e) => AddContent();
 
     private static readonly string[] RatioArray = ["sqrt2:1", "16:9", "4:3", "3:2", "auto"];
     private static readonly string[] DotsArray = ["dots", "no_dots"];
@@ -357,8 +382,8 @@ public partial class Generator : Window
         var jsonMap = new JObject
         {
             ["ratio"] = GetButtonState(AdvancedGrid.Children[0] as Persona5StyledMultiStateButton, RatioArray),
-            ["font_directory"] = string.IsNullOrEmpty(FontDirectoryTextBox.Text) ? "default" : FontDirectoryTextBox.Text,
-            ["colors"] = GetColorsAndRadii(),
+            ["fontDirectory"] = GetFontDirectory(),
+            ["colorsAndRadii"] = GetColorsAndRadii(),
             ["paragraphs"] = GetContents(),
             ["version"] = App.Version,
             ["dots"] = GetButtonState(AdvancedGrid.Children[2] as Persona5StyledMultiStateButton, DotsArray),
@@ -366,7 +391,7 @@ public partial class Generator : Window
             ["trigger"] = "avalonia"
         };
 
-        if (!jsonMap["colors"]!.Any())
+        if (jsonMap["colorsAndRadii"]?[0]?.ToString() == "illegal")
         {
             var dialog = new Persona5StyledDialog(this, """
                                                         无法生成！
@@ -424,8 +449,8 @@ public partial class Generator : Window
         if (_generatedCardFaceStream == null || _generatedCardFaceStream.Length == 0)
         {
             var dialog = new Persona5StyledDialog(this, """
-                                                        导出失败！
-                                                        没有可供导出的图像数据，请先使用生成功能生成并预览，再进行导出。
+                                                        没有可供导出的图像数据！
+                                                        请先使用“生成”功能生成预览后再进行导出。
                                                         """);
             await dialog.ShowDialog(this);
             return;
@@ -459,7 +484,7 @@ public partial class Generator : Window
             SuggestedFileName = "Calling Card (Back).png",
             FileTypeChoices = new[] { fileTypes }
         };
-        var fileBack = await storageProvider?.SaveFilePickerAsync(optionsBack)!;
+        var fileBack = await storageProvider.SaveFilePickerAsync(optionsBack);
         if (fileBack != null) await SavePngFileAsync(fileBack, 1);
     }
 
@@ -490,37 +515,31 @@ public partial class Generator : Window
         }
     }
 
-    private JArray GetColorsAndRadii()
+    private string GetFontDirectory()
     {
-        var colorsAndRadii = new JArray();
+        var fontDirectory = FontDirectoryTextBox.Text;
+        return string.IsNullOrEmpty(fontDirectory) ? "default" : fontDirectory;
+    }
+
+    private JToken GetColorsAndRadii()
+    {
         if ((AdvancedGrid.Children[1] as Persona5StyledMultiStateButton)!.GetCurrentState() == 0)
+            return new JArray("default");
+        var colorsAndRadii = new JArray();
+        foreach (var child in ColorAndRadiiStackPanel.Children.Skip(1))
         {
+            if (child is not Grid grid) continue;
+            var flagIllegal = (grid.Children[0] as Persona5StyledTextBox)!.ControlTextBox.Text != string.Empty;
+            var hex = (grid.Children[1] as Persona5StyledTextBox)!.ControlTextBox.Text;
+            var isValidInteger = int.TryParse((grid.Children[2] as Persona5StyledTextBox)!.ControlTextBox.Text,
+                out var radius);
+            if (flagIllegal || !isValidInteger || radius <= 0) return new JArray("illegal");
             colorsAndRadii.Add(new JObject
             {
-                { "hex", "#FF0000" },
-                { "radius", 260 }
-            });
-            colorsAndRadii.Add(new JObject
-            {
-                { "hex", "#000000" },
-                { "radius", 320 }
+                { "hex", hex },
+                { "radius", radius }
             });
         }
-        else
-            foreach (var child in ColorStackPanel.Children.Skip(1))
-            {
-                if (child is not Grid grid) continue;
-                var flagIllegal = (grid.Children[0] as Persona5StyledTextBox)!.ControlTextBox.Text != string.Empty;
-                var hex = (grid.Children[1] as Persona5StyledTextBox)!.ControlTextBox.Text;
-                var isValidInteger = int.TryParse((grid.Children[2] as Persona5StyledTextBox)!.ControlTextBox.Text,
-                    out var radius);
-                if (flagIllegal || !isValidInteger || radius <= 0) return [];
-                colorsAndRadii.Add(new JObject
-                {
-                    { "hex", hex },
-                    { "radius", radius }
-                });
-            }
 
         return colorsAndRadii;
     }
@@ -538,7 +557,7 @@ public partial class Generator : Window
             contents.Add(new JObject
             {
                 { "content", content },
-                { "font_size", fontSize },
+                { "fontSize", fontSize },
                 { "alignment", alignment },
             });
         }

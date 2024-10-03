@@ -18,7 +18,7 @@ def main():
                     float=16,
                     shift=[-8, 16],
                     character_style=CharacterStyle(
-                        basesize=128,
+                        base_size=128,
                         rotate_sigma=2,
                         stretch=[0.2, 0.4],
                         swapcase_rate=0.25,
@@ -42,7 +42,7 @@ def main():
                 style=AUTHOR_PARAGRAPH,
             ),
         ],
-        font_directory="default",
+        font_directory="system",
         antialias=2,
         font_format_check=True,
         gen_back=True,

@@ -110,12 +110,12 @@ class Paragraph:
                     cmap = {}
                     while cmap == None or ord(target_character) not in cmap:
                         index, font = self.font_manager.choice()
-                        font = (
+                        checking_font = (
                             TTCollection(font).fonts[0]
                             if font.lower().endswith(".ttc")
                             else TTFont(font)
                         )
-                        cmap = font.getBestCmap()
+                        cmap = checking_font.getBestCmap()
                         self.font_manager.remove(index)
                     self.font_manager.reset()
                 character.generate(font)

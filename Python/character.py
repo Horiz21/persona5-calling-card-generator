@@ -33,12 +33,12 @@ class Pattern:
 class CharacterStyle:
     def __init__(
         self,
-        basesize: int = 24,
+        base_size: int = 24,
         rotate_sigma: float = 1.5,
         stretch: float | List[float] = [0.2, 0.4],
         swapcase_rate: float = 0.25,
     ):
-        self.size = int(basesize)
+        self.size = int(base_size)
         self.rotate_sigma = float(rotate_sigma)
         if isinstance(stretch, (int, float)):
             self.stretch = [float(stretch)] * 2

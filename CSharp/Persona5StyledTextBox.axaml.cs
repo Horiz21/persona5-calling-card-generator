@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.Interactivity;
 
 namespace P5CCG
 {
@@ -29,10 +28,7 @@ namespace P5CCG
         {
             InitializeComponent();
             BackgroundPath.UpdateStroke(Colors.White, 2);
-            Loaded += GenerateBackground;
+            Loaded += (_, _) => BackgroundPath.UpdateShape((int)Bounds.Width, (int)Bounds.Height, 5, 0, [2.0, 3.5]);
         }
-
-        private void GenerateBackground(object? sender, RoutedEventArgs e) =>
-            BackgroundPath.UpdateShape((int)Bounds.Width, (int)Bounds.Height, 5, 0, [2.0, 3.5]);
     }
 }

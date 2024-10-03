@@ -27,17 +27,21 @@ def main():
 
     ## Get Font Path
     font_directory = (
-        data["font_directory"]
-        if data["font_directory"] != "default"
+        data["fontDirectory"]
+        if data["fontDirectory"] != "default"
         else "./Assets/Fonts"
     )
 
     ## Get Color
-    radii = []
-    colors = []
-    for color in data["colors"]:
-        colors.append(color["hex"])
-        radii.append(int(color["radius"]))
+    if data["colorsAndRadii"][0] == "default":
+        radii = [260, 320]
+        colors = ["#F00", "#000"]
+    else:
+        radii = []
+        colors = []
+        for color in data["colorsAndRadii"]:
+            colors.append(color["hex"])
+            radii.append(int(color["radius"]))
 
     ## Get Content
     paragraphs = []
@@ -48,12 +52,12 @@ def main():
                 style=ParagraphStyle(
                     align=paragraph["alignment"],
                     character_style=(
-                        CharacterStyle(basesize=192, stretch=[0.2, 0.5])
-                        if paragraph["font_size"] == "L"
+                        CharacterStyle(base_size=192, stretch=[0.2, 0.5])
+                        if paragraph["fontSize"] == "L"
                         else (
-                            CharacterStyle(basesize=128)
-                            if paragraph["font_size"] == "M"
-                            else CharacterStyle(basesize=96)
+                            CharacterStyle(base_size=128)
+                            if paragraph["fontSize"] == "M"
+                            else CharacterStyle(base_size=96)
                         )
                     ),
                 ),
